@@ -7,6 +7,8 @@
 namespace airmap {
 namespace stitcher {
 
+using airmap::filesystem::path;
+
 ///
 /// @brief The ostream_logger class wraps the undelying/optional Logger and allows using
 /// it as a stream i.e.: define macro like this:
@@ -391,6 +393,90 @@ void LowLevelOpenCVStitcher::compose(
     cv::Mat result_mask;
     blender->blend(result, result_mask);
     LOG(debug) << "Finished composing stitched image.";
+}
+
+
+void LowLevelOpenCVStitcher::debugFeatures(SourceImages &source_images,
+        std::vector<cv::detail::ImageFeatures> &features,
+        double scale, cv::DrawMatchesFlags flags)
+{
+    if (!config.debug)
+        return;
+
+    path image_path_base = path(config.debug_path) / path("features");
+    boost::filesystem::create_directories(image_path_base.string());
+
+    cv::Mat source_image, features_image;
+    for (size_t i = 0; i < features.size(); ++i) {
+        cv::resize(source_images.images[features[i].img_idx], source_image, cv::Size(), scale, scale);
+        cv::drawKeypoints(source_image, features[i].keypoints,
+                          features_image, cv::Scalar::all(-1), flags);
+
+        std::string image_name = (boost::format("%1%.jpg") % std::to_string(features[i].img_idx)).str();
+        std::string image_path = (image_path_base / path(image_name)).string();
+
+        cv::imwrite(image_path, features_image);
+    }
+}
+
+void LowLevelOpenCVStitcher::debugMatches(SourceImages &source_images,
+        std::vector<cv::detail::ImageFeatures> &features,
+        std::vector<cv::detail::MatchesInfo> &matches,
+        double scale, float conf_threshold, cv::DrawMatchesFlags flags)
+{
+    if (!config.debug)
+        return;
+
+    path image_path_base = path(config.debug_path) / path("matches");
+    boost::filesystem::create_directories(image_path_base.string());
+
+    const int num_matches = static_cast<int>(matches.size());
+    for (int i = 0; i < num_matches; ++i) {
+        cv::detail::MatchesInfo match = matches[i];
+        if (match.confidence < conf_threshold)
+            continue;
+        
+        cv::Mat src_img, dst_img;
+        cv::resize(source_images.images[match.src_img_idx], src_img, cv::Size(), scale, scale, cv::INTER_LINEAR_EXACT);
+        cv::resize(source_images.images[match.dst_img_idx], dst_img, cv::Size(), scale, scale, cv::INTER_LINEAR_EXACT);
+
+        cv::Mat img_matches;
+
+        std::vector<cv::KeyPoint> src_keypoints = features[match.src_img_idx].getKeypoints();
+        std::vector<cv::KeyPoint> dst_keypoints = features[match.dst_img_idx].getKeypoints();
+        cv::drawMatches(src_img, src_keypoints, dst_img, dst_keypoints, match.matches, img_matches, cv::Scalar::all(-1),
+            cv::Scalar::all(-1), std::vector<char>(), flags);
+
+        std::string image_name = (boost::format("%1%_%2%.jpg") % std::to_string(match.src_img_idx) % std::to_string(match.dst_img_idx)).str();
+        std::string image_path = (image_path_base / path(image_name)).string();
+
+        cv::imwrite(image_path, img_matches);
+    }
+
+    // Create and save matches graph.
+    std::vector<std::string> image_names;
+    for (size_t i = 0; i < source_images.images.size(); ++i) {
+        image_names.push_back(std::to_string(i));
+    }
+    std::string matches_graph_path = (path(config.debug_path) / path("matches.dot")).string();
+    std::ofstream matchesGraph(matches_graph_path);
+    matchesGraph << cv::detail::matchesGraphAsString(image_names, matches, conf_threshold);
+}
+
+void LowLevelOpenCVStitcher::debugWarpResults(WarpResults &warp_results)
+{
+    if (!config.debug)
+        return;
+
+    path image_path_base = path(config.debug_path) / path("warp");
+    boost::filesystem::create_directories(image_path_base.string());
+
+    for (size_t i = 0; i < warp_results.images_warped.size(); ++i) {
+        std::string image_name = (boost::format("%1%.jpg") % std::to_string(i)).str();
+        std::string image_path = (image_path_base / path(image_name)).string();
+
+        cv::imwrite(image_path, warp_results.images_warped[i]);
+    }
 }
 
 std::vector<cv::detail::CameraParams> LowLevelOpenCVStitcher::estimateCameraParameters(
@@ -809,10 +895,12 @@ void LowLevelOpenCVStitcher::stitch(cv::Mat &result)
     double work_scale = getWorkScale(source_images);
     double seam_scale = getSeamScale(source_images);
 
-    // Find features, scale images, and find matches.
+    // Find features, find matches, and scale images.
     auto features = findFeatures(source_images, work_scale);
-    source_images.scale(seam_scale);
+    debugFeatures(source_images, features, work_scale);
     auto matches = matchFeatures(features);
+    debugMatches(source_images, features, matches, work_scale, config.match_conf_thresh);
+    source_images.scale(seam_scale);
 
     // Filter images with poor matching.
     auto keep_indices = cv::detail::leaveBiggestComponent(
@@ -832,6 +920,7 @@ void LowLevelOpenCVStitcher::stitch(cv::Mat &result)
     float warped_image_scale = static_cast<float>(median_focal_length);
     auto warp_results =
             warpImages(source_images, cameras, warped_image_scale, seam_work_aspect);
+    debugWarpResults(warp_results);
 
     // Prepare exposure compensation.
     auto exposure_compensator = prepareExposureCompensation(warp_results);

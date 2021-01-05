@@ -10,6 +10,7 @@ set(Boost_USE_STATIC_LIBS ON)
 find_package(
     Boost REQUIRED
     program_options
+    filesystem
 )
 
 include_directories(
@@ -42,6 +43,7 @@ target_link_libraries(
     airmap_stitcher
     airmap_stitching
     Boost::program_options
+    Boost::filesystem
 )
 
 #

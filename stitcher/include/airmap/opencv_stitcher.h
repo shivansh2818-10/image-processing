@@ -1,5 +1,7 @@
 #pragma once
 
+#include <boost/format.hpp>
+#include <boost/filesystem.hpp>
 #include <opencv2/core/utility.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgcodecs.hpp>
@@ -124,6 +126,12 @@ public:
         //! Megapixels an image will be scaled down to for the composition step.
         double compose_megapix;
 
+        //! Whether to create debug artifacts (e.g. feature detection, matching, warping, etc.)
+        bool debug;
+
+        //! Path to debug artifacts directory.
+        std::string debug_path;
+
         /*!
          * The type of estimator (e.g. affine or homography) to use to estimate initial
          * camera parameters.
@@ -233,7 +241,7 @@ public:
          * defaults in the future.
          * @param stitchType The stitching default to use.
          */
-        Configuration(StitchType stitchType)
+        Configuration(StitchType stitchType, bool _debug = false, std::string _debugPath = "debug")
         {
             switch (stitchType) {
             case StitchType::ThreeSixty:
@@ -261,6 +269,9 @@ public:
                 work_megapix = 0.6;
                 break;
             }
+
+            debug = _debug;
+            debug_path = _debugPath;
         }
 
         /**
@@ -270,6 +281,8 @@ public:
          * @param blender_type
          * @param bundle_adjuster_type
          * @param compose_megapix
+         * @param debug
+         * @param debug_path
          * @param estimator_type
          * @param exposure_compensator_type
          * @param exposure_compensation_nr_feeds
@@ -291,6 +304,7 @@ public:
          */
         Configuration(float blend_strength, int blender_type,
                       BundleAdjusterType bundle_adjuster_type, double compose_megapix,
+                      bool debug, std::string debug_path,
                       EstimatorType estimator_type,
                       ExposureCompensatorType exposure_compensator_type,
                       int exposure_compensation_nr_feeds,
@@ -306,6 +320,8 @@ public:
             , blender_type(blender_type)
             , bundle_adjuster_type(bundle_adjuster_type)
             , compose_megapix(compose_megapix)
+            , debug(debug)
+            , debug_path(debug_path)
             , estimator_type(estimator_type)
             , exposure_compensator_type(exposure_compensator_type)
             , exposure_compensation_nr_feeds(exposure_compensation_nr_feeds)
@@ -492,6 +508,43 @@ private:
                  cv::Ptr<cv::detail::ExposureCompensator> &exposure_compensator,
                  WarpResults &warp_results, double work_scale,
                  float warped_image_scale, cv::Mat &result);
+
+    /**
+     * @brief debugFeatures
+     * Draw features on source images and save the results.
+     * @param source_images
+     * @param features
+     * @param scale
+     * @param flags
+     */
+    void debugFeatures(SourceImages &source_images,
+                       std::vector<cv::detail::ImageFeatures> &features,
+                       double scale,
+                       cv::DrawMatchesFlags flags = cv::DrawMatchesFlags::DEFAULT);
+
+    /**
+     * @brief debugMatches
+     * Draw feature matches on source images and save the results.
+     * @param source_images
+     * @param features
+     * @param matches
+     * @param scale
+     * @param conf_threshold
+     * @param flags
+     */
+    void debugMatches(SourceImages &source_images,
+                      std::vector<cv::detail::ImageFeatures> &features,
+                      std::vector<cv::detail::MatchesInfo> &matches,
+                      double scale,
+                      float conf_threshold,
+                      cv::DrawMatchesFlags flags = cv::DrawMatchesFlags::DEFAULT);
+
+    /**
+     * @brief debugWarpResults
+     * Save warp result images.
+     * @param warp_results
+     */
+    void debugWarpResults(WarpResults &warp_results);
 
     /**
      * @brief estimateCameraParameters
