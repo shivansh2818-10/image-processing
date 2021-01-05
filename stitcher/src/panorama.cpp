@@ -128,6 +128,8 @@ GeoImage GeoImage::fromExif(const std::string &imagePath)
     return GeoImage { imagePath,
                       geocoordinate_t(imageEXIF.GeoLocation.Longitude,
                                       imageEXIF.GeoLocation.Latitude),
+                      imageEXIF.Make,
+                      imageEXIF.Model,
                       imageEXIF.GeoLocation.PitchDegree,
                       imageEXIF.GeoLocation.RollDegree,
                       imageEXIF.GeoLocation.YawDegree,
