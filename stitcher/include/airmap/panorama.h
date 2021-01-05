@@ -125,6 +125,7 @@ struct GeoImage
     std::string path;
     geocoordinate_t geoCoordinate;
     double cameraPitchDeg;
+    double cameraRollDeg;
     double cameraYawDeg;
     time_t createdTimestampSec;
     time_t downloadedTimestampSec;
