@@ -2,50 +2,11 @@
 #include "cropper.h"
 #include "cubemap.h"
 #include <random>
-#include <sstream>
 
 namespace airmap {
 namespace stitcher {
 
 using airmap::filesystem::path;
-
-///
-/// @brief The ostream_logger class wraps the undelying/optional Logger and allows using
-/// it as a stream i.e.: define macro like this:
-///
-/// #define LOG(level) ostream_logger(_logger, Logger::Severity::level, "some category")
-///
-/// and then use within a class that has a _logger member like so:
-///
-/// LOG(info) << "foo" << 1;
-/// TODO: when this https://github.com/airmap/platform-sdk/pull/155/ is merged this class
-/// can be scrapped.
-///
-class ostream_logger : public std::stringstream
-{
-public:
-    ostream_logger(std::shared_ptr<Logger> underlying, Logger::Severity severity,
-                   const char *component)
-        : _underlying(underlying)
-        , _severity(severity)
-        , _component(component)
-    {
-    }
-
-    ~ostream_logger()
-    {
-        if (_underlying) {
-            _underlying->log(_severity, str().c_str(), _component);
-        }
-    }
-
-private:
-    std::shared_ptr<Logger> _underlying;
-    Logger::Severity _severity;
-    const char *_component;
-};
-
-#define LOG(level) ostream_logger(_logger, Logger::Severity::level, "stitcher")
 
 //
 //
@@ -194,95 +155,6 @@ void OpenCVStitcher::postprocess(cv::Mat &&result)
     }
 }
 
-//
-//
-// LowLevelOpenCVStitcher
-//
-//
-//! stitcher::SourceImages struct
-void LowLevelOpenCVStitcher::SourceImages::clear()
-{
-    images.clear();
-    sizes.clear();
-}
-
-void LowLevelOpenCVStitcher::SourceImages::ensureImageCount()
-{
-    if (images.size() < 2) { // TODO(bkd): constant
-        std::string message = "Need more images.";
-        LOG(error) << message.c_str();
-        throw std::invalid_argument(message);
-    }
-}
-
-void LowLevelOpenCVStitcher::SourceImages::filter(std::vector<int> &keep_indices)
-{
-    size_t original_count = images.size();
-    size_t keep_count = keep_indices.size();
-    std::vector<cv::Mat> images_;
-    std::vector<cv::Size> sizes_;
-
-    for (int keep_index : keep_indices) {
-        size_t index = static_cast<size_t>(keep_index);
-        images_.push_back(images[index]);
-        sizes_.push_back(sizes[index]);
-    }
-
-    images = images_;
-    sizes = sizes_;
-
-    LOG(debug) << "Discarded" << original_count - keep_count << "images.";
-
-    ensureImageCount();
-}
-
-void LowLevelOpenCVStitcher::SourceImages::load()
-{
-    time_t prevts = 0;
-    size_t i = 0;
-    for (GeoImage panorama_image : panorama) {
-        assert(prevts <= panorama_image.createdTimestampSec);
-        prevts = panorama_image.createdTimestampSec;
-
-        std::string path = panorama_image.path;
-        cv::Mat image = cv::imread(path);
-        if (image.empty()) {
-            std::stringstream ss;
-            ss << "Can't read image " << path;
-            throw std::invalid_argument(ss.str());
-        }
-
-        gimbal_orientations[i] = GimbalOrientation(panorama_image.cameraPitchDeg,
-            panorama_image.cameraRollDeg, panorama_image.cameraYawDeg);
-
-        images[i] = image;
-        sizes[i] = image.size();
-        ++i;
-    }
-}
-
-void LowLevelOpenCVStitcher::SourceImages::reload()
-{
-    size_t new_size = static_cast<size_t>(panorama.size());
-    clear();
-    resize(new_size);
-    load();
-}
-
-void LowLevelOpenCVStitcher::SourceImages::resize(size_t new_size)
-{
-    gimbal_orientations.resize(new_size);
-    images.resize(new_size);
-    sizes.resize(new_size);
-}
-
-void LowLevelOpenCVStitcher::SourceImages::scale(double scale, int interpolation)
-{
-    for (size_t i = 0; i < images.size(); ++i) {
-        cv::resize(images[i], images[i], cv::Size(), scale, scale, interpolation);
-    }
-}
-
 //! stitcher::stitcher class
 
 LowLevelOpenCVStitcher::LowLevelOpenCVStitcher(const Configuration &config,
@@ -398,7 +270,6 @@ void LowLevelOpenCVStitcher::compose(
     blender->blend(result, result_mask);
     LOG(debug) << "Finished composing stitched image.";
 }
-
 
 void LowLevelOpenCVStitcher::debugFeatures(SourceImages &source_images,
         std::vector<cv::detail::ImageFeatures> &features,

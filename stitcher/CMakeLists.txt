@@ -23,6 +23,7 @@ add_library(
     airmap_stitching
     src/cubemap.cpp
     src/cropper.cpp
+    src/images.cpp
     src/stitcher.cpp
     src/panorama.cpp
     3rdParty/TinyEXIF/TinyEXIF.cpp

@@ -20,6 +20,10 @@
 #include <opencv2/stitching/warpers.hpp>
 
 #include "camera.h"
+#include "camera_models.h"
+#include "gimbal.h"
+#include "images.h"
+#include "logger.h"
 #include "stitcher.h"
 
 namespace airmap {
@@ -347,85 +351,6 @@ public:
     };
 
     /**
-     * @brief SourceImages
-     * A struct to contain and manage source images.
-     */
-    struct SourceImages
-    {
-        //! Source image paths and metadata.
-        const Panorama &panorama;
-        //! Gimbal orientation.
-        std::vector<GimbalOrientation> gimbal_orientations;
-        //! The loaded images.
-        std::vector<cv::Mat> images;
-        //! Sizes of the original images (but changed after warping).
-        std::vector<cv::Size> sizes;
-        std::shared_ptr<Logger> _logger;
-
-        /**
-         * @brief SourceImages
-         * @param panorama Source image paths and metadata.
-         */
-        SourceImages(const Panorama &panorama, std::shared_ptr<Logger> logger)
-            : panorama(panorama)
-            , images()
-            , sizes()
-            , _logger(logger)
-        {
-            resize(static_cast<size_t>(panorama.size()));
-            load();
-            ensureImageCount();
-        }
-
-        /**
-         * @brief clear
-         * Clear all storage.
-         */
-        void clear();
-
-        /**
-         * @brief ensureImageCount
-         * Throws if there are less than 2 images.
-         * @throws std::invalid_argument
-         */
-        void ensureImageCount();
-
-        /**
-         * @brief filter
-         * Remove images not in keep_indices.
-         * @param keep_indices
-         */
-        void filter(std::vector<int> &keep_indices);
-
-        /**
-         * @brief load
-         * Open images and load associated metadata.
-         */
-        void load();
-
-        /**
-         * @brief reload
-         * Reload original images.
-         */
-        void reload();
-
-        /**
-         * @brief resize
-         * @param new_size
-         * Resize storage vectors.
-         */
-        void resize(size_t new_size);
-
-        /**
-         * @brief scale
-         * Scale images in place.
-         * @param scale
-         * @param interpolation
-         */
-        void scale(double scale, int interpolation = cv::INTER_LINEAR_EXACT);
-    };
-
-    /**
      * @brief WarpResults
      * Contains the results of the warping operation.
      */
@@ -549,6 +474,9 @@ private:
      * @param warp_results
      */
     void debugWarpResults(WarpResults &warp_results);
+
+    void getOverlapMasks(SourceImages &source_images, Camera &camera, int &from, int &to,
+                         double scale, cv::Mat &mask_from, cv::Mat &mask_to);
 
     /**
      * @brief estimateCameraParameters

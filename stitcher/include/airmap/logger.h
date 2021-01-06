@@ -18,6 +18,7 @@
 
 #include <iostream>
 #include <memory>
+#include <sstream>
 
 namespace airmap {
 
@@ -71,6 +72,44 @@ AIRMAP_EXPORT std::shared_ptr<Logger> create_filtering_logger(Logger::Severity s
 /// create_null_logger returns a logger that does the equivalent of
 /// > /dev/null.
 AIRMAP_EXPORT std::shared_ptr<Logger> create_null_logger();
+
+///
+/// @brief The ostream_logger class wraps the undelying/optional Logger and allows using
+/// it as a stream i.e.: define macro like this:
+///
+/// #define LOG(level) ostream_logger(_logger, Logger::Severity::level, "some category")
+///
+/// and then use within a class that has a _logger member like so:
+///
+/// LOG(info) << "foo" << 1;
+/// TODO: when this https://github.com/airmap/platform-sdk/pull/155/ is merged this class
+/// can be scrapped.
+///
+class ostream_logger : public std::stringstream
+{
+public:
+    ostream_logger(std::shared_ptr<Logger> underlying, Logger::Severity severity,
+                   const char *component)
+        : _underlying(underlying)
+        , _severity(severity)
+        , _component(component)
+    {
+    }
+
+    ~ostream_logger()
+    {
+        if (_underlying) {
+            _underlying->log(_severity, str().c_str(), _component);
+        }
+    }
+
+private:
+    std::shared_ptr<Logger> _underlying;
+    Logger::Severity _severity;
+    const char *_component;
+};
+
+#define LOG(level) ostream_logger(_logger, Logger::Severity::level, "stitcher")
 
 }  // namespace airmap
 
