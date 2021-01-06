@@ -252,6 +252,9 @@ void LowLevelOpenCVStitcher::SourceImages::load()
             throw std::invalid_argument(ss.str());
         }
 
+        gimbal_orientations[i] = GimbalOrientation(panorama_image.cameraPitchDeg,
+            panorama_image.cameraRollDeg, panorama_image.cameraYawDeg);
+
         images[i] = image;
         sizes[i] = image.size();
         ++i;
@@ -268,6 +271,7 @@ void LowLevelOpenCVStitcher::SourceImages::reload()
 
 void LowLevelOpenCVStitcher::SourceImages::resize(size_t new_size)
 {
+    gimbal_orientations.resize(new_size);
     images.resize(new_size);
     sizes.resize(new_size);
 }
