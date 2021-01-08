@@ -68,6 +68,9 @@ struct GimbalOrientation
     /**
      * @brief rotationMatrix
      * Calculate the rotation matrix for the given pose.
+     * This is not a normal rotation sequence, since it's also
+     * converting between camera and vehicle frames.  There is
+     * definitely room for improvement here.
      */
     cv::Mat rotationMatrix()
     {
@@ -106,6 +109,8 @@ struct GimbalOrientation
      * @brief rotateTo
      * Calculate the rotation between the current pose
      * to the given pose.
+     * NOTE(bkd): Ideally, this would return a GimbalOrientation,
+     * but need to implement reverse of rotation matrix to Euler angles.
      * @param to - pose to rotate to
      */
     cv::Mat rotateTo(GimbalOrientation &to)

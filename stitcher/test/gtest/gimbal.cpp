@@ -15,11 +15,17 @@ TEST(gimbal, gimbalStruct)
     EXPECT_DOUBLE_EQ(gimbal_degrees.roll, roll);
     EXPECT_DOUBLE_EQ(gimbal_degrees.yaw, yaw);
 
-    // Test unit conversion.
+    // Test unit conversion from degreees to radians.
     GimbalOrientation gimbal_radians = gimbal_degrees.convertTo(GimbalOrientation::Units::Radians);
     EXPECT_DOUBLE_EQ(gimbal_radians.pitch, pitch * M_PI/180.0);
     EXPECT_DOUBLE_EQ(gimbal_radians.roll, roll * M_PI/180.0);
     EXPECT_DOUBLE_EQ(gimbal_radians.yaw, yaw * M_PI/180.0);
+
+    // Test unit conversion from radians to degrees.
+    gimbal_degrees = gimbal_radians.convertTo(GimbalOrientation::Units::Degrees);
+    EXPECT_DOUBLE_EQ(gimbal_degrees.pitch, pitch);
+    EXPECT_DOUBLE_EQ(gimbal_degrees.roll, roll);
+    EXPECT_DOUBLE_EQ(gimbal_degrees.yaw, yaw);
 }
 
 TEST(gimbal, gimbalHomography) {
@@ -64,4 +70,57 @@ TEST(gimbal, gimbalHomography) {
     EXPECT_DOUBLE_EQ(actual.at<double>(2, 0), expected.at<double>(2, 0));
     EXPECT_DOUBLE_EQ(actual.at<double>(2, 1), expected.at<double>(2, 1));
     EXPECT_DOUBLE_EQ(actual.at<double>(2, 2), expected.at<double>(2, 2));
+}
+
+TEST(gimbal, gimbalRotationMatrix)
+{
+    double angle = M_PI / 2;
+    double cos_negative_angle = cos(-angle);
+    GimbalOrientation gimbal;
+    cv::Mat R;
+
+    /**
+     * Test rotation around the X axis (pitch).
+     */
+    gimbal = GimbalOrientation(angle, 0, 0, GimbalOrientation::Units::Radians);
+    R = gimbal.rotationMatrix();
+    EXPECT_DOUBLE_EQ(R.at<double>(0, 0), 1);
+    EXPECT_DOUBLE_EQ(R.at<double>(0, 1), 0);
+    EXPECT_DOUBLE_EQ(R.at<double>(0, 2), 0);
+    EXPECT_DOUBLE_EQ(R.at<double>(1, 0), 0);
+    EXPECT_DOUBLE_EQ(R.at<double>(1, 1), -cos_negative_angle);
+    EXPECT_DOUBLE_EQ(R.at<double>(1, 2), 1);
+    EXPECT_DOUBLE_EQ(R.at<double>(2, 0), 0);
+    EXPECT_DOUBLE_EQ(R.at<double>(2, 1), 1);
+    EXPECT_DOUBLE_EQ(R.at<double>(2, 2), cos_negative_angle);
+
+    /**
+     * Test rotation around the Y axis (yaw).
+     */
+    gimbal = GimbalOrientation(0, angle, 0, GimbalOrientation::Units::Radians);
+    R = gimbal.rotationMatrix();
+    EXPECT_DOUBLE_EQ(R.at<double>(0, 0), cos_negative_angle);
+    EXPECT_DOUBLE_EQ(R.at<double>(0, 1), 1);
+    EXPECT_DOUBLE_EQ(R.at<double>(0, 2), 0);
+    EXPECT_DOUBLE_EQ(R.at<double>(1, 0), -1);
+    EXPECT_DOUBLE_EQ(R.at<double>(1, 1), -cos_negative_angle);
+    EXPECT_DOUBLE_EQ(R.at<double>(1, 2), 0);
+    EXPECT_DOUBLE_EQ(R.at<double>(2, 0), 0);
+    EXPECT_DOUBLE_EQ(R.at<double>(2, 1), 0);
+    EXPECT_DOUBLE_EQ(R.at<double>(2, 2), 1);
+
+    /**
+     * Test rotation around the Z axis (roll).
+     */
+    gimbal = GimbalOrientation(0, 0, angle, GimbalOrientation::Units::Radians);
+    R = gimbal.rotationMatrix();
+    EXPECT_DOUBLE_EQ(R.at<double>(0, 0), cos_negative_angle);
+    EXPECT_DOUBLE_EQ(R.at<double>(0, 1), 0);
+    EXPECT_DOUBLE_EQ(R.at<double>(0, 2), 1);
+    EXPECT_DOUBLE_EQ(R.at<double>(1, 0), 0);
+    EXPECT_DOUBLE_EQ(R.at<double>(1, 1), -1);
+    EXPECT_DOUBLE_EQ(R.at<double>(1, 2), 0);
+    EXPECT_DOUBLE_EQ(R.at<double>(2, 0), -1);
+    EXPECT_DOUBLE_EQ(R.at<double>(2, 1), 0);
+    EXPECT_DOUBLE_EQ(R.at<double>(2, 2), cos_negative_angle);
 }
