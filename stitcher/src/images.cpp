@@ -5,8 +5,13 @@ namespace stitcher {
 
 void SourceImages::clear()
 {
-    images.clear();
+    gimbal_orientations.clear();
     sizes.clear();
+
+    for (size_t i = 0; i < images.size(); ++i) {
+        images[i].release();
+    }
+    images.clear();
 }
 
 void SourceImages::ensureImageCount()
@@ -22,15 +27,18 @@ void SourceImages::filter(std::vector<int> &keep_indices)
 {
     size_t original_count = images.size();
     size_t keep_count = keep_indices.size();
+    std::vector<GimbalOrientation> gimbal_orientations_;
     std::vector<cv::Mat> images_;
     std::vector<cv::Size> sizes_;
 
     for (int keep_index : keep_indices) {
         size_t index = static_cast<size_t>(keep_index);
+        gimbal_orientations_.push_back(gimbal_orientations[index]);
         images_.push_back(images[index]);
         sizes_.push_back(sizes[index]);
     }
 
+    gimbal_orientations = gimbal_orientations_;
     images = images_;
     sizes = sizes_;
 

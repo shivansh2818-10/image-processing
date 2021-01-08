@@ -9,6 +9,8 @@
 #include "logger.h"
 #include "panorama.h"
 
+using namespace airmap::logging;
+
 namespace airmap {
 namespace stitcher {
 
@@ -45,13 +47,13 @@ struct SourceImages
     /**
      * @brief logger
      */
-    std::shared_ptr<Logger> _logger;
+    std::shared_ptr<logging::Logger> _logger;
 
     /**
      * @brief SourceImages
      * @param panorama Source image paths and metadata.
      */
-    SourceImages(const Panorama &panorama, std::shared_ptr<Logger> logger)
+    SourceImages(const Panorama &panorama, std::shared_ptr<logging::Logger> logger)
         : panorama(panorama)
         , images()
         , sizes()

@@ -57,4 +57,6 @@ install(TARGETS airmap_stitcher
 # Testing
 #
 enable_testing()
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/test)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/test/bats)
+
+include(${CMAKE_CURRENT_SOURCE_DIR}/test/gtest/CMakeLists.txt)

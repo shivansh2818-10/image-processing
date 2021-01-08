@@ -61,6 +61,8 @@ struct GimbalOrientation
 
         // normalize
         H /= H.at<double>(2, 2);
+
+        return H;
     }
 
     /**
@@ -114,7 +116,12 @@ struct GimbalOrientation
         return R;
     }
 
-    std::string toString(bool compact)
+    /**
+     * @brief toString
+     * Returns a string for debugging.
+     * @param compact
+     */
+    std::string toString(bool compact = false)
     {
         if (compact) {
             return "[" + std::to_string(pitch) + ", " + std::to_string(roll) + ", "

@@ -21,6 +21,7 @@
 #include <sstream>
 
 namespace airmap {
+namespace logging {
 
 /// Copy of https://raw.githubusercontent.com/airmap/platform-sdk/master/include/airmap/logger.h
 /// TODO: we need an AirMap C++ boilerplate separate from platform-sdk
@@ -111,6 +112,28 @@ private:
 
 #define LOG(level) ostream_logger(_logger, Logger::Severity::level, "stitcher")
 
-}  // namespace airmap
+class stdoe_logger : public Logger {
+    public:
+    void log(Severity severity, const char* message, const char* component) override {
+        switch (severity){
+            case Severity::info:
+                std::cout << "[" << component << "]>" << message << std::endl;
+            break;
+            case Severity::debug:
+                std::cout << "[" << component << "]>" << message << std::endl;
+            break;
+            case Severity::error:
+                std::cerr << "[" << component << "]>" << message << std::endl;
+            break;
+        }
+    }
+
+    bool should_log(Severity, const char*, const char*) override {
+        return true;
+    }
+};
+
+} // namespace logging
+} // namespace airmap
 
 #endif  // AIRMAP_LOGGER_H_

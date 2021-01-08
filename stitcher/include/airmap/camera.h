@@ -1,5 +1,6 @@
 #pragma once
 
+#include <boost/optional.hpp>
 #include <opencv2/core/utility.hpp>
 
 namespace airmap {
@@ -36,6 +37,20 @@ struct Camera
         {
         }
 
+        Distortion()
+            : k1(0.0), k2(0.0), k3(0.0), p1(0.0), p2(0.0)
+        {
+        }
+
+        bool operator==(const Distortion &other) const
+        {
+            return k1 == other.k1 &&
+                   k2 == other.k2 &&
+                   k3 == other.k3 &&
+                   p1 == other.p1 &&
+                   p2 == other.p2;
+        }
+
         /**
          * @brief Coefficients vector.
          */
@@ -43,6 +58,16 @@ struct Camera
         {
             return (cv::Mat_<double>(5, 1) <<
                 k1, k2, p1, p2, k3);
+        }
+
+        bool vectorEquals(cv::Mat &other)
+        {
+            cv::Mat vector_ = vector();
+            return vector_.at<double>(0, 0) == other.at<double>(0, 0) &&
+                   vector_.at<double>(1, 0) == other.at<double>(1, 0) &&
+                   vector_.at<double>(2, 0) == other.at<double>(2, 0) &&
+                   vector_.at<double>(3, 0) == other.at<double>(3, 0) &&
+                   vector_.at<double>(4, 0) == other.at<double>(4, 0);
         }
     };
 
@@ -90,44 +115,21 @@ struct Camera
            cv::Point2d _sensor_dimensions_pixels, cv::Point2d _principal_point,
            Distortion _distortion,
            boost::optional<cv::Mat> _calibration_intrinsics = boost::optional<cv::Mat>())
-        : sensor_dimensions_meters(_sensor_dimensions_meters)
+        : focal_length_meters(_focal_length_meters)
+        , sensor_dimensions_meters(_sensor_dimensions_meters)
         , sensor_dimensions_pixels(_sensor_dimensions_pixels)
-        , focal_length_meters(_focal_length_meters)
         , principal_point(_principal_point)
         , distortion(_distortion)
         , calibration_intrinsics(_calibration_intrinsics)
     {
     }
 
-    /**
-     * @brief Distortion coefficients vector.
-     */
-    cv::Mat D()
+    Camera()
+        : focal_length_meters(0)
+        , sensor_dimensions_meters(cv::Point2d(0, 0))
+        , sensor_dimensions_pixels(cv::Point2d(0, 0))
+        , principal_point(cv::Point2d(0, 0))
     {
-        return distortion.vector();
-    }
-
-    /**
-     * @brief Intrinsics matrix.
-     * @param scale
-     */
-    cv::Mat K(double scale = 1.0)
-    {
-        if (calibration_intrinsics.has_value()) {
-            cv::Mat K;
-            calibration_intrinsics.value().copyTo(K);
-            K.at<double>(0, 0) *= scale;
-            K.at<double>(0, 2) *= scale;
-            K.at<double>(1, 1) *= scale;
-            K.at<double>(1, 2) *= scale;
-            return K;
-        }
-
-        cv::Point2d focal_length_pixels = focalLengthPixels();
-        return (cv::Mat_<double>(3, 3) <<
-            focal_length_pixels.x * scale, 0, principal_point.x * scale,
-            0, focal_length_pixels.y * scale, principal_point.y * scale,
-            0, 0, 1);
     }
 
     /**
@@ -157,6 +159,29 @@ struct Camera
         }
 
         return cv::Point2d(x, y);
+    }
+
+    /**
+     * @brief Intrinsics matrix.
+     * @param scale
+     */
+    cv::Mat K(double scale = 1.0)
+    {
+        if (calibration_intrinsics.has_value()) {
+            cv::Mat K;
+            calibration_intrinsics.value().copyTo(K);
+            K.at<double>(0, 0) *= scale;
+            K.at<double>(0, 2) *= scale;
+            K.at<double>(1, 1) *= scale;
+            K.at<double>(1, 2) *= scale;
+            return K;
+        }
+
+        cv::Point2d focal_length_pixels = focalLengthPixels();
+        return (cv::Mat_<double>(3, 3) <<
+                focal_length_pixels.x * scale, 0, principal_point.x * scale,
+                0, focal_length_pixels.y * scale, principal_point.y * scale,
+                0, 0, 1);
     }
 };
 

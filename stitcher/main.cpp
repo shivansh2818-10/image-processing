@@ -4,27 +4,7 @@
 
 #include "airmap/opencv_stitcher.h"
 using namespace airmap::stitcher;
-
-class stdoe_logger : public airmap::Logger {
-    public:
-    void log(Severity severity, const char* message, const char* component) override {
-        switch (severity){
-            case Severity::info:
-                std::cout << "[" << component << "]>" << message << std::flush;
-            break;
-            case Severity::debug:
-                std::cout << "[" << component << "]>" << message << std::flush;
-            break;
-            case Severity::error:
-                std::cerr << "[" << component << "]>" << message << std::flush;
-            break;
-        }
-    }
-
-    bool should_log(Severity, const char*, const char*) override {
-        return true;
-    }
-};
+using namespace airmap::logging;
 
 int main(int argc, char *argv[])
 {
