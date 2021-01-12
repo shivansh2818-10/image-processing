@@ -3,21 +3,29 @@
 #include "airmap/logger.h"
 #include "airmap/panorama.h"
 
+#include <boost/dll.hpp>
+#include <boost/filesystem.hpp>
+
 using airmap::stitcher::GeoImage;
 using airmap::stitcher::Panorama;
 using airmap::stitcher::SourceImages;
-using airmap::filesystem::path;
 using airmap::logging::Logger;
 using airmap::logging::stdoe_logger;
+using boost::filesystem::path;
 
 class SourceImagesTest : public ::testing::Test
 {
 protected:
     void SetUp() override
     {
-        path image_directory = path("../") / "test" / "fixtures" / "panorama_aus_1";
+        Panorama panorama = Panorama(input());
+        logger = std::make_shared<stdoe_logger>();
+        source_images = std::make_shared<SourceImages>(std::move(panorama), logger);
+    }
 
-        std::list<GeoImage> input {
+    static const std::list<GeoImage> input() {
+        path image_directory = path("../") / "test" / "fixtures" / "panorama_aus_1";
+        std::list<GeoImage> input_ = {
             GeoImage::fromExif((image_directory / "P5050970.JPG").string()),
             GeoImage::fromExif((image_directory / "P5060971.JPG").string()),
             GeoImage::fromExif((image_directory / "P5060972.JPG").string()),
@@ -44,10 +52,7 @@ protected:
             GeoImage::fromExif((image_directory / "P5160993.JPG").string()),
             GeoImage::fromExif((image_directory / "P5160994.JPG").string())
         };
-
-        Panorama panorama = Panorama(input);
-        logger = std::make_shared<stdoe_logger>();
-        source_images = std::make_shared<SourceImages>(std::move(panorama), logger);
+        return input_;
     }
 
     std::shared_ptr<Logger> logger;
@@ -149,16 +154,16 @@ TEST_F(SourceImagesTest, sourceImagesFilter)
  * happpens as part of these tests.  valgrind shows invalid reads
  * during std::list<GeoImage> deallocation.
  */
-// TEST_F(SourceImagesTest, sourceImagesReload)
-// {
-//     EXPECT_EQ(source_images->images.size(), 25);
+TEST_F(SourceImagesTest, DISABLED_sourceImagesReload)
+{
+    EXPECT_EQ(source_images->images.size(), 25);
 
-//     source_images->clear();
-//     EXPECT_EQ(source_images->images.size(), 0);
+    source_images->clear();
+    EXPECT_EQ(source_images->images.size(), 0);
 
-//     source_images->reload();
-//     EXPECT_EQ(source_images->images.size(), 25);
-// }
+    source_images->reload();
+    EXPECT_EQ(source_images->images.size(), 25);
+}
 
 TEST_F(SourceImagesTest, sourceImagesResize)
 {

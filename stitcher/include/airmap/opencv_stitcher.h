@@ -26,9 +26,10 @@
 #include "logger.h"
 #include "stitcher.h"
 
+using boost::filesystem::path;
+
 namespace airmap {
 namespace stitcher {
-
 
 /**
  * @brief The OpenCVStitcher performs basic, same callstack stitching using OpenCV
@@ -136,7 +137,7 @@ public:
         bool debug;
 
         //! Path to debug artifacts directory.
-        std::string debug_path;
+        path debug_path;
 
         /*!
          * The type of estimator (e.g. affine or homography) to use to estimate initial
@@ -247,7 +248,7 @@ public:
          * defaults in the future.
          * @param stitchType The stitching default to use.
          */
-        Configuration(StitchType stitchType, bool _debug = false, std::string _debugPath = "debug")
+        Configuration(StitchType stitchType, bool _debug = false, path _debugPath = path("debug"))
         {
             switch (stitchType) {
             case StitchType::ThreeSixty:
@@ -310,7 +311,7 @@ public:
          */
         Configuration(float blend_strength, int blender_type,
                       BundleAdjusterType bundle_adjuster_type, double compose_megapix,
-                      bool debug, std::string debug_path,
+                      bool debug, path debug_path,
                       EstimatorType estimator_type,
                       ExposureCompensatorType exposure_compensator_type,
                       int exposure_compensation_nr_feeds,

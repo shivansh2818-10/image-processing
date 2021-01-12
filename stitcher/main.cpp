@@ -51,14 +51,14 @@ int main(int argc, char *argv[])
         std::list<GeoImage> input;
         for (std::string path : vm["input"].as<std::vector<std::string>>()) {
             if (vm.count("input_path")) {
-                path = (airmap::filesystem::path(vm["input_path"].as<std::string>()) / path).string();
+                path = (boost::filesystem::path(vm["input_path"].as<std::string>()) / path).string();
             }
             input.push_back(GeoImage::fromExif(path));
         }
 
         std::string debugPath;
         if (vm.count("debug")) {
-            debugPath = airmap::filesystem::path(vm["debug_path"].as<std::string>()).string();
+            debugPath = boost::filesystem::path(vm["debug_path"].as<std::string>()).string();
         }
 
         auto logger = std::make_shared<stdoe_logger>();

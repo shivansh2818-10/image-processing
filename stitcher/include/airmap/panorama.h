@@ -8,54 +8,9 @@
 #include <utility>
 #include <string>
 
+#include <boost/filesystem.hpp>
+
 namespace airmap {
-namespace filesystem {
-
-/**
- * @brief The path class is a basic ersatz for a std::filesystem (C++17) or boost::filesystem
- * that doesn't require linking anything
- */
-class path {
-    public:
-        path(const std::string& p);
-
-        inline std::string string() const {
-            return _path;
-        }
-
-        path parent_path() const;
-        std::string stem() const;
-
-        inline bool operator==(const path& other) const {
-            return _path == other._path;
-        }
-
-        inline bool operator!=(const path& other) const {
-            return _path != other._path;
-        }
-
-        inline static char separator() {
-#ifdef _WIN32
-            return '\\';
-#else
-            return '/';
-#endif
-        }
-
-        inline path operator/(const path& other) const {
-            return _path + separator() + other._path;
-        }
-
-        inline path operator/(const char* other) const {
-            return _path + separator() + other;
-        }
-
-    private:
-        std::string _path;
-};
-}
-
-
 namespace stitcher {
 
 class geocoordinate_t : public std::pair<double, double>

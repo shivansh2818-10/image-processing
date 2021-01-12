@@ -6,8 +6,6 @@
 namespace airmap {
 namespace stitcher {
 
-using airmap::filesystem::path;
-
 //
 //
 // OpenCVStitcher
@@ -139,8 +137,8 @@ void OpenCVStitcher::postprocess(cv::Mat &&result)
     cv::imwrite(_outputPath, result);
     LOG(info) << "Written stitched image to " << _outputPath << std::endl;
     if (_parameters.alsoCreateCubeMap) {
-        std::string base_path = (filesystem::path(_outputPath).parent_path()
-                                 / filesystem::path(_outputPath).stem())
+        std::string base_path = (path(_outputPath).parent_path()
+                                 / path(_outputPath).stem())
                                         .string();
         CubeMap::write(
                 result,
@@ -277,7 +275,7 @@ void LowLevelOpenCVStitcher::debugFeatures(SourceImages &source_images,
 {
     if (!config.debug) { return; }
 
-    path image_path_base = path(config.debug_path) / "features";
+    path image_path_base = config.debug_path / "features";
     boost::filesystem::create_directories(image_path_base.string());
 
     cv::Mat source_image, features_image;
@@ -300,7 +298,7 @@ void LowLevelOpenCVStitcher::debugMatches(SourceImages &source_images,
 {
     if (!config.debug) { return; }
 
-    path image_path_base = path(config.debug_path) / "matches";
+    path image_path_base = config.debug_path / "matches";
     boost::filesystem::create_directories(image_path_base.string());
 
     const int num_matches = static_cast<int>(matches.size());
@@ -333,7 +331,7 @@ void LowLevelOpenCVStitcher::debugMatches(SourceImages &source_images,
     for (size_t i = 0; i < source_images.images.size(); ++i) {
         image_names.push_back(std::to_string(i));
     }
-    std::string matches_graph_path = (path(config.debug_path) / "matches.dot").string();
+    std::string matches_graph_path = (config.debug_path / "matches.dot").string();
     std::ofstream matchesGraph(matches_graph_path);
     matchesGraph << cv::detail::matchesGraphAsString(image_names, matches, conf_threshold);
 }
@@ -342,7 +340,7 @@ void LowLevelOpenCVStitcher::debugWarpResults(WarpResults &warp_results)
 {
     if (!config.debug) { return; }
 
-    path image_path_base = path(config.debug_path) / "warp";
+    path image_path_base = config.debug_path / "warp";
     boost::filesystem::create_directories(image_path_base.string());
 
     for (size_t i = 0; i < warp_results.images_warped.size(); ++i) {
