@@ -12,46 +12,57 @@ using airmap::logging::Logger;
 using airmap::logging::stdoe_logger;
 using boost::filesystem::path;
 
+struct Images {
+    Images()
+    {
+        image_directory = path(__FILE__).parent_path() / ".." / "fixtures" / "panorama_aus_1";
+        const std::vector<path> image_paths {
+            image_directory / "P5050970.JPG",
+            image_directory / "P5060971.JPG",
+            image_directory / "P5060972.JPG",
+            image_directory / "P5070973.JPG",
+            image_directory / "P5070974.JPG",
+            image_directory / "P5080975.JPG",
+            image_directory / "P5080976.JPG",
+            image_directory / "P5090977.JPG",
+            image_directory / "P5090978.JPG",
+            image_directory / "P5100979.JPG",
+            image_directory / "P5100980.JPG",
+            image_directory / "P5110981.JPG",
+            image_directory / "P5110982.JPG",
+            image_directory / "P5120983.JPG",
+            image_directory / "P5120984.JPG",
+            image_directory / "P5130985.JPG",
+            image_directory / "P5130986.JPG",
+            image_directory / "P5130987.JPG",
+            image_directory / "P5140988.JPG",
+            image_directory / "P5140989.JPG",
+            image_directory / "P5150990.JPG",
+            image_directory / "P5150991.JPG",
+            image_directory / "P5160992.JPG",
+            image_directory / "P5160993.JPG",
+            image_directory / "P5160994.JPG"
+        };
+        for (auto &image_path : image_paths) {
+            images.push_back(GeoImage::fromExif(image_path.string()));
+        }
+    }
+
+    boost::filesystem::path image_directory;
+    std::list<boost::filesystem::path> image_paths;
+    std::list<GeoImage> images;
+};
+
+std::list<GeoImage> input = Images().images;
+
 class SourceImagesTest : public ::testing::Test
 {
 protected:
     void SetUp() override
     {
-        Panorama panorama = Panorama(input());
+        Panorama panorama = Panorama(input);
         logger = std::make_shared<stdoe_logger>();
         source_images = std::make_shared<SourceImages>(std::move(panorama), logger);
-    }
-
-    static const std::list<GeoImage> input() {
-        path image_directory = path(__FILE__).parent_path() / ".." / "fixtures" / "panorama_aus_1";
-        std::list<GeoImage> input_ = {
-            GeoImage::fromExif((image_directory / "P5050970.JPG").string()),
-            GeoImage::fromExif((image_directory / "P5060971.JPG").string()),
-            GeoImage::fromExif((image_directory / "P5060972.JPG").string()),
-            GeoImage::fromExif((image_directory / "P5070973.JPG").string()),
-            GeoImage::fromExif((image_directory / "P5070974.JPG").string()),
-            GeoImage::fromExif((image_directory / "P5080975.JPG").string()),
-            GeoImage::fromExif((image_directory / "P5080976.JPG").string()),
-            GeoImage::fromExif((image_directory / "P5090977.JPG").string()),
-            GeoImage::fromExif((image_directory / "P5090978.JPG").string()),
-            GeoImage::fromExif((image_directory / "P5100979.JPG").string()),
-            GeoImage::fromExif((image_directory / "P5100980.JPG").string()),
-            GeoImage::fromExif((image_directory / "P5110981.JPG").string()),
-            GeoImage::fromExif((image_directory / "P5110982.JPG").string()),
-            GeoImage::fromExif((image_directory / "P5120983.JPG").string()),
-            GeoImage::fromExif((image_directory / "P5120984.JPG").string()),
-            GeoImage::fromExif((image_directory / "P5130985.JPG").string()),
-            GeoImage::fromExif((image_directory / "P5130986.JPG").string()),
-            GeoImage::fromExif((image_directory / "P5130987.JPG").string()),
-            GeoImage::fromExif((image_directory / "P5140988.JPG").string()),
-            GeoImage::fromExif((image_directory / "P5140989.JPG").string()),
-            GeoImage::fromExif((image_directory / "P5150990.JPG").string()),
-            GeoImage::fromExif((image_directory / "P5150991.JPG").string()),
-            GeoImage::fromExif((image_directory / "P5160992.JPG").string()),
-            GeoImage::fromExif((image_directory / "P5160993.JPG").string()),
-            GeoImage::fromExif((image_directory / "P5160994.JPG").string())
-        };
-        return input_;
     }
 
     std::shared_ptr<Logger> logger;
@@ -114,9 +125,9 @@ TEST_F(SourceImagesTest, sourceImagesFilter)
             principal_point.y, principal_point.x);
 
         if (i == remove_index) {
-            EXPECT_TRUE(principal_point_values_removed[0] == principal_point_values[0] &&
-                        principal_point_values_removed[1] == principal_point_values[1] &&
-                        principal_point_values_removed[2] == principal_point_values[2]);
+            EXPECT_EQ(principal_point_values_removed[0], principal_point_values[0]);
+            EXPECT_EQ(principal_point_values_removed[1], principal_point_values[1]);
+            EXPECT_EQ(principal_point_values_removed[2], principal_point_values[2]);
         } else {
             EXPECT_FALSE(principal_point_values_removed[0] == principal_point_values[0] &&
                         principal_point_values_removed[1] == principal_point_values[1] &&
