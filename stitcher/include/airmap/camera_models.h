@@ -1,6 +1,10 @@
 #pragma once
 
 #include "camera.h"
+#include "panorama.h"
+
+#include <boost/optional.hpp>
+#include <iostream>
 
 namespace airmap {
 namespace stitcher {
@@ -11,11 +15,35 @@ namespace stitcher {
  */
 struct CameraModels
 {
+    std::map<std::string, Camera> models;
+
+    CameraModels()
+    {
+        models["AnafiThermal"] = ParrotAnafiThermal();
+        models["GreenSeer EO Navigation Lens"] = VantageVesperEONavigation();
+    }
+
     /**
-     * @brief ParrotAnafiUSA Camera
-     * Parrot Anafi USA camera information.
+     * @brief detect
+     * Detect the camera model and return a Camera instance.
+     * @param image
      */
-    static Camera ParrotAnafiUSA()
+    boost::optional<Camera> detect(const GeoImage &image)
+    {
+        for (const auto &model : models) {
+            if (image.cameraModel == model.first) {
+                return model.second;
+            }
+        }
+
+        return boost::optional<Camera>();
+    }
+
+    /**
+     * @brief ParrotAnafiThermal Camera
+     * Parrot Anafi Thermal camera information.
+     */
+    static Camera ParrotAnafiThermal()
     {
         double focal_length_meters = 4.04e-3;
         cv::Point2d sensor_dimensions_meters(7.22e-3, 5.50e-3);

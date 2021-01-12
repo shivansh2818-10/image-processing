@@ -2,6 +2,7 @@
 
 #include <boost/format.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/optional.hpp>
 
 #include <opencv2/core/utility.hpp>
 #include <opencv2/highgui.hpp>
