@@ -21,54 +21,103 @@ struct Camera
      */
     struct Distortion
     {
-        double k1;
-        double k2;
-        double k3;
-        double p1;
-        double p2;
-
         /**
          * @brief Distortion.
          * Create camera distortion coefficients.
          * The order of parameters is consistent with OpenCV.
          */
         Distortion(double _k1, double _k2, double _p1, double _p2, double _k3)
-            : k1(_k1), k2(_k2), k3(_k3), p1(_p1), p2(_p2)
         {
+            _coefficients = { _k1, _k2, _k3, _p1, _p2 };
+        }
+
+        Distortion(cv::Mat &vector)
+        {
+            double k1 = vector.at<double>(0, 0);
+            double k2 = vector.at<double>(1, 0);
+            double p1 = vector.at<double>(2, 0);
+            double p2 = vector.at<double>(3, 0);
+            double k3 = vector.at<double>(4, 0);
+            _coefficients = { k1, k2, k3, p1, p2 };
         }
 
         Distortion()
-            : k1(0.0), k2(0.0), k3(0.0), p1(0.0), p2(0.0)
         {
-        }
-
-        bool operator==(const Distortion &other) const
-        {
-            return k1 == other.k1 &&
-                   k2 == other.k2 &&
-                   k3 == other.k3 &&
-                   p1 == other.p1 &&
-                   p2 == other.p2;
+            _coefficients = { 0.0, 0.0, 0.0, 0.0, 0.0 };
         }
 
         /**
          * @brief Coefficients vector.
          */
-        cv::Mat vector()
+        cv::Mat coefficients()
         {
             return (cv::Mat_<double>(5, 1) <<
-                k1, k2, p1, p2, k3);
+                k1(), k2(), p1(), p2(), k3());
         }
 
-        bool vectorEquals(cv::Mat &other)
+        /**
+         * @brief k1
+         * k1 coefficient
+         */
+        double k1() const
         {
-            cv::Mat vector_ = vector();
-            return vector_.at<double>(0, 0) == other.at<double>(0, 0) &&
-                   vector_.at<double>(1, 0) == other.at<double>(1, 0) &&
-                   vector_.at<double>(2, 0) == other.at<double>(2, 0) &&
-                   vector_.at<double>(3, 0) == other.at<double>(3, 0) &&
-                   vector_.at<double>(4, 0) == other.at<double>(4, 0);
+            return _coefficients[0];
         }
+
+        /**
+         * @brief k2
+         * k2 coefficient
+         */
+        double k2() const
+        {
+            return _coefficients[1];
+        }
+
+        /**
+         * @brief k3
+         * k3 coefficient
+         */
+        double k3() const
+        {
+            return _coefficients[2];
+        }
+
+        /**
+         * @brief p1
+         * p1 coefficient
+         */
+        double p1() const
+        {
+            return _coefficients[3];
+        }
+
+        /**
+         * @brief p2
+         * p2 coefficient
+         */
+        double p2() const
+        {
+            return _coefficients[4];
+        }
+
+        bool operator==(const Distortion &other) const
+        {
+            return _coefficients == other._coefficients;
+        }
+
+        friend std::ostream& operator<<(std::ostream &os,
+                                        const Distortion &distortion)
+        {
+            return os << "k1: " << std::to_string(distortion.k1())
+                      << " k2: " << std::to_string(distortion.k2())
+                      << " k3: " << std::to_string(distortion.k3())
+                      << " p1: " << std::to_string(distortion.p1())
+                      << " p2: " << std::to_string(distortion.p2())
+                      << std::endl;
+        }
+
+        protected:
+            std::array<double, 5> _coefficients;
     };
 
     /**

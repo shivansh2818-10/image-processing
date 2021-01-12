@@ -15,35 +15,34 @@ class SourceImagesTest : public ::testing::Test
 protected:
     void SetUp() override
     {
-        path image_directory = (path("../") / path("test") / path("fixtures") /
-                                path("panorama_aus_1"));
+        path image_directory = path("../") / "test" / "fixtures" / "panorama_aus_1";
 
         std::list<GeoImage> input {
-            GeoImage::fromExif((image_directory / path("P5050970.JPG")).string()),
-            GeoImage::fromExif((image_directory / path("P5060971.JPG")).string()),
-            GeoImage::fromExif((image_directory / path("P5060972.JPG")).string()),
-            GeoImage::fromExif((image_directory / path("P5070973.JPG")).string()),
-            GeoImage::fromExif((image_directory / path("P5070974.JPG")).string()),
-            GeoImage::fromExif((image_directory / path("P5080975.JPG")).string()),
-            GeoImage::fromExif((image_directory / path("P5080976.JPG")).string()),
-            GeoImage::fromExif((image_directory / path("P5090977.JPG")).string()),
-            GeoImage::fromExif((image_directory / path("P5090978.JPG")).string()),
-            GeoImage::fromExif((image_directory / path("P5100979.JPG")).string()),
-            GeoImage::fromExif((image_directory / path("P5100980.JPG")).string()),
-            GeoImage::fromExif((image_directory / path("P5110981.JPG")).string()),
-            GeoImage::fromExif((image_directory / path("P5110982.JPG")).string()),
-            GeoImage::fromExif((image_directory / path("P5120983.JPG")).string()),
-            GeoImage::fromExif((image_directory / path("P5120984.JPG")).string()),
-            GeoImage::fromExif((image_directory / path("P5130985.JPG")).string()),
-            GeoImage::fromExif((image_directory / path("P5130986.JPG")).string()),
-            GeoImage::fromExif((image_directory / path("P5130987.JPG")).string()),
-            GeoImage::fromExif((image_directory / path("P5140988.JPG")).string()),
-            GeoImage::fromExif((image_directory / path("P5140989.JPG")).string()),
-            GeoImage::fromExif((image_directory / path("P5150990.JPG")).string()),
-            GeoImage::fromExif((image_directory / path("P5150991.JPG")).string()),
-            GeoImage::fromExif((image_directory / path("P5160992.JPG")).string()),
-            GeoImage::fromExif((image_directory / path("P5160993.JPG")).string()),
-            GeoImage::fromExif((image_directory / path("P5160994.JPG")).string())
+            GeoImage::fromExif((image_directory / "P5050970.JPG").string()),
+            GeoImage::fromExif((image_directory / "P5060971.JPG").string()),
+            GeoImage::fromExif((image_directory / "P5060972.JPG").string()),
+            GeoImage::fromExif((image_directory / "P5070973.JPG").string()),
+            GeoImage::fromExif((image_directory / "P5070974.JPG").string()),
+            GeoImage::fromExif((image_directory / "P5080975.JPG").string()),
+            GeoImage::fromExif((image_directory / "P5080976.JPG").string()),
+            GeoImage::fromExif((image_directory / "P5090977.JPG").string()),
+            GeoImage::fromExif((image_directory / "P5090978.JPG").string()),
+            GeoImage::fromExif((image_directory / "P5100979.JPG").string()),
+            GeoImage::fromExif((image_directory / "P5100980.JPG").string()),
+            GeoImage::fromExif((image_directory / "P5110981.JPG").string()),
+            GeoImage::fromExif((image_directory / "P5110982.JPG").string()),
+            GeoImage::fromExif((image_directory / "P5120983.JPG").string()),
+            GeoImage::fromExif((image_directory / "P5120984.JPG").string()),
+            GeoImage::fromExif((image_directory / "P5130985.JPG").string()),
+            GeoImage::fromExif((image_directory / "P5130986.JPG").string()),
+            GeoImage::fromExif((image_directory / "P5130987.JPG").string()),
+            GeoImage::fromExif((image_directory / "P5140988.JPG").string()),
+            GeoImage::fromExif((image_directory / "P5140989.JPG").string()),
+            GeoImage::fromExif((image_directory / "P5150990.JPG").string()),
+            GeoImage::fromExif((image_directory / "P5150991.JPG").string()),
+            GeoImage::fromExif((image_directory / "P5160992.JPG").string()),
+            GeoImage::fromExif((image_directory / "P5160993.JPG").string()),
+            GeoImage::fromExif((image_directory / "P5160994.JPG").string())
         };
 
         Panorama panorama = Panorama(input);

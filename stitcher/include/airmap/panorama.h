@@ -46,6 +46,10 @@ class path {
             return _path + separator() + other._path;
         }
 
+        inline path operator/(const char* other) const {
+            return _path + separator() + other;
+        }
+
     private:
         std::string _path;
 };

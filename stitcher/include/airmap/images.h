@@ -1,5 +1,7 @@
 #pragma once
 
+#include <boost/format.hpp>
+
 #include <opencv2/core/utility.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/opencv_modules.hpp>
@@ -50,14 +52,22 @@ struct SourceImages
     std::shared_ptr<logging::Logger> _logger;
 
     /**
+     * @brief minimumImageCount
+     * The minimum number of images.  Used by ensureImageCount.
+     */
+    int minimumImageCount;
+
+    /**
      * @brief SourceImages
      * @param panorama Source image paths and metadata.
      */
-    SourceImages(const Panorama &panorama, std::shared_ptr<logging::Logger> logger)
+    SourceImages(const Panorama &panorama, std::shared_ptr<logging::Logger> logger,
+                 const int _minimumImageCount = 2)
         : panorama(panorama)
         , images()
         , sizes()
         , _logger(logger)
+        , minimumImageCount(_minimumImageCount)
     {
         resize(static_cast<size_t>(panorama.size()));
         load();

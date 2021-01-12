@@ -16,8 +16,8 @@ void SourceImages::clear()
 
 void SourceImages::ensureImageCount()
 {
-    if (images.size() < 2) { // TODO(bkd): constant
-        std::string message = "Need more images.";
+    if (images.size() < minimumImageCount) {
+        std::string message = (boost::format("Need at least %1% images, but only have %2%.") % minimumImageCount % images.size()).str();
         LOG(error) << message.c_str();
         throw std::invalid_argument(message);
     }
@@ -30,6 +30,9 @@ void SourceImages::filter(std::vector<int> &keep_indices)
     std::vector<GimbalOrientation> gimbal_orientations_;
     std::vector<cv::Mat> images_;
     std::vector<cv::Size> sizes_;
+    gimbal_orientations_.reserve(keep_count);
+    images_.reserve(keep_count);
+    sizes_.reserve(keep_count);
 
     for (int keep_index : keep_indices) {
         size_t index = static_cast<size_t>(keep_index);

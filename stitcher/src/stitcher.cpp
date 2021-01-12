@@ -275,10 +275,11 @@ void LowLevelOpenCVStitcher::debugFeatures(SourceImages &source_images,
         std::vector<cv::detail::ImageFeatures> &features,
         double scale, cv::DrawMatchesFlags flags)
 {
-    if (!config.debug)
+    if (!config.debug) {
         return;
+    }
 
-    path image_path_base = path(config.debug_path) / path("features");
+    path image_path_base = path(config.debug_path) / "features";
     boost::filesystem::create_directories(image_path_base.string());
 
     cv::Mat source_image, features_image;
@@ -299,17 +300,19 @@ void LowLevelOpenCVStitcher::debugMatches(SourceImages &source_images,
         std::vector<cv::detail::MatchesInfo> &matches,
         double scale, float conf_threshold, cv::DrawMatchesFlags flags)
 {
-    if (!config.debug)
+    if (!config.debug) {
         return;
+    }
 
-    path image_path_base = path(config.debug_path) / path("matches");
+    path image_path_base = path(config.debug_path) / "matches";
     boost::filesystem::create_directories(image_path_base.string());
 
     const int num_matches = static_cast<int>(matches.size());
     for (int i = 0; i < num_matches; ++i) {
         cv::detail::MatchesInfo match = matches[i];
-        if (match.confidence < conf_threshold)
+        if (match.confidence < conf_threshold) {
             continue;
+        }
         
         cv::Mat src_img, dst_img;
         cv::resize(source_images.images[match.src_img_idx], src_img, cv::Size(), scale, scale, cv::INTER_LINEAR_EXACT);
@@ -330,20 +333,22 @@ void LowLevelOpenCVStitcher::debugMatches(SourceImages &source_images,
 
     // Create and save matches graph.
     std::vector<std::string> image_names;
+    image_names.reserve(source_images.images.size());
     for (size_t i = 0; i < source_images.images.size(); ++i) {
         image_names.push_back(std::to_string(i));
     }
-    std::string matches_graph_path = (path(config.debug_path) / path("matches.dot")).string();
+    std::string matches_graph_path = (path(config.debug_path) / "matches.dot").string();
     std::ofstream matchesGraph(matches_graph_path);
     matchesGraph << cv::detail::matchesGraphAsString(image_names, matches, conf_threshold);
 }
 
 void LowLevelOpenCVStitcher::debugWarpResults(WarpResults &warp_results)
 {
-    if (!config.debug)
+    if (!config.debug) {
         return;
+    }
 
-    path image_path_base = path(config.debug_path) / path("warp");
+    path image_path_base = path(config.debug_path) / "warp";
     boost::filesystem::create_directories(image_path_base.string());
 
     for (size_t i = 0; i < warp_results.images_warped.size(); ++i) {

@@ -645,4 +645,3 @@ private:
 
 } // namespace stitcher
 } // namespace airmap
-
