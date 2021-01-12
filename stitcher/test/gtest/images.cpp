@@ -3,7 +3,6 @@
 #include "airmap/logger.h"
 #include "airmap/panorama.h"
 
-#include <boost/dll.hpp>
 #include <boost/filesystem.hpp>
 
 using airmap::stitcher::GeoImage;
@@ -24,7 +23,7 @@ protected:
     }
 
     static const std::list<GeoImage> input() {
-        path image_directory = path("../") / "test" / "fixtures" / "panorama_aus_1";
+        path image_directory = path(__FILE__).parent_path() / ".." / "fixtures" / "panorama_aus_1";
         std::list<GeoImage> input_ = {
             GeoImage::fromExif((image_directory / "P5050970.JPG").string()),
             GeoImage::fromExif((image_directory / "P5060971.JPG").string()),
