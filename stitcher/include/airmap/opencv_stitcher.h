@@ -477,9 +477,6 @@ private:
      */
     void debugWarpResults(WarpResults &warp_results);
 
-    void getOverlapMasks(SourceImages &source_images, Camera &camera, int &from, int &to,
-                         double scale, cv::Mat &mask_from, cv::Mat &mask_to);
-
     /**
      * @brief estimateCameraParameters
      * Takes features of all images, pairwise matches between all images, and
