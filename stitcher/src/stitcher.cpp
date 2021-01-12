@@ -275,9 +275,7 @@ void LowLevelOpenCVStitcher::debugFeatures(SourceImages &source_images,
         std::vector<cv::detail::ImageFeatures> &features,
         double scale, cv::DrawMatchesFlags flags)
 {
-    if (!config.debug) {
-        return;
-    }
+    if (!config.debug) { return; }
 
     path image_path_base = path(config.debug_path) / "features";
     boost::filesystem::create_directories(image_path_base.string());
@@ -300,9 +298,7 @@ void LowLevelOpenCVStitcher::debugMatches(SourceImages &source_images,
         std::vector<cv::detail::MatchesInfo> &matches,
         double scale, float conf_threshold, cv::DrawMatchesFlags flags)
 {
-    if (!config.debug) {
-        return;
-    }
+    if (!config.debug) { return; }
 
     path image_path_base = path(config.debug_path) / "matches";
     boost::filesystem::create_directories(image_path_base.string());
@@ -344,9 +340,7 @@ void LowLevelOpenCVStitcher::debugMatches(SourceImages &source_images,
 
 void LowLevelOpenCVStitcher::debugWarpResults(WarpResults &warp_results)
 {
-    if (!config.debug) {
-        return;
-    }
+    if (!config.debug) { return; }
 
     path image_path_base = path(config.debug_path) / "warp";
     boost::filesystem::create_directories(image_path_base.string());
@@ -865,8 +859,7 @@ LowLevelOpenCVStitcher::warpImages(SourceImages &source_images,
 
 void LowLevelOpenCVStitcher::waveCorrect(std::vector<cv::detail::CameraParams> &cameras)
 {
-    if (!config.wave_correct)
-        return;
+    if (!config.wave_correct) { return; }
 
     std::vector<cv::Mat> rmats;
     for (auto camera : cameras) {
