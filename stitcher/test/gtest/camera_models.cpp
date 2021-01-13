@@ -25,9 +25,9 @@ TEST(cameraModels, models)
 
 TEST(cameraModels, detect)
 {
-    path image_directory = (path("../") / path("test") / path("fixtures") /
-                            path("panorama_aus_1"));
-    GeoImage image = GeoImage::fromExif((image_directory / path("P5050970.JPG")).string());
+    path image_directory = (path(__FILE__).parent_path() / ".." / "fixtures" /
+                            "panorama_aus_1");
+    GeoImage image = GeoImage::fromExif((image_directory / "P5050970.JPG").string());
     Camera expected = CameraModels::ParrotAnafiThermal();
     CameraModels models;
     boost::optional<Camera> actual = models.detect(image);
