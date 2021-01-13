@@ -2,6 +2,7 @@
 #include "airmap/images.h"
 #include "airmap/logger.h"
 #include "airmap/panorama.h"
+#include "opencv_assert/mat_compare.h"
 
 #include <boost/filesystem.hpp>
 
@@ -115,23 +116,20 @@ TEST_F(SourceImagesTest, sourceImagesFilter)
         source_images->images[remove_index].at<cv::Vec3b>(
             principal_point.y, principal_point.x);
 
+    cv::Mat expected;
+    source_images->images[remove_index].copyTo(expected);
 
     /**
-     * Make sure that no other images have the same values at the
-     * principal point.
+     * Make sure that no other images match the image to
+     * be removed.
      */
     for (size_t i = 0; i < source_images->images.size(); ++i) {
-        cv::Vec3b principal_point_values = source_images->images[i].at<cv::Vec3b>(
-            principal_point.y, principal_point.x);
+        cv::Mat actual = source_images->images[i];
 
         if (i == remove_index) {
-            EXPECT_EQ(principal_point_values_removed[0], principal_point_values[0]);
-            EXPECT_EQ(principal_point_values_removed[1], principal_point_values[1]);
-            EXPECT_EQ(principal_point_values_removed[2], principal_point_values[2]);
+            EXPECT_PRED_FORMAT2(opencv_assert::CvMatEq, actual, expected);
         } else {
-            EXPECT_FALSE(principal_point_values_removed[0] == principal_point_values[0] &&
-                        principal_point_values_removed[1] == principal_point_values[1] &&
-                        principal_point_values_removed[2] == principal_point_values[2]);
+            EXPECT_PRED_FORMAT2(opencv_assert::CvMatNe, actual, expected);
         }
     }
 
@@ -146,16 +144,11 @@ TEST_F(SourceImagesTest, sourceImagesFilter)
     EXPECT_EQ(source_images->images.size(), 24);
 
     /**
-     * Make sure that no remaining images have the same values at the
-     * principal point.
+     * Make sure that no remaining images match the removed image.
      */
     for (size_t i = 0; i < source_images->images.size(); ++i) {
-        cv::Vec3b principal_point_values = source_images->images[i].at<cv::Vec3b>(
-            principal_point.y, principal_point.x);
-
-        EXPECT_FALSE(principal_point_values_removed[0] == principal_point_values[0] &&
-                     principal_point_values_removed[1] == principal_point_values[1] &&
-                     principal_point_values_removed[2] == principal_point_values[2]);
+        cv::Mat actual = source_images->images[i];
+        EXPECT_PRED_FORMAT2(opencv_assert::CvMatNe, actual, expected);
     }
 }
 
