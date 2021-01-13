@@ -105,3 +105,5 @@ static inline ::testing::AssertionResult CvMatNe(const char* a_expr,
 {
     return CvMatCompare(a_expr, b_expr, a, b, true);
 }
+
+} // opencv_assert
