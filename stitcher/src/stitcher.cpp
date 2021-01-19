@@ -285,9 +285,21 @@ void LowLevelOpenCVStitcher::debugFeatures(SourceImages &source_images,
                           features_image, cv::Scalar::all(-1), flags);
 
         std::string image_name = (boost::format("%1%.jpg") % std::to_string(features[i].img_idx)).str();
-        std::string image_path = (image_path_base / path(image_name)).string();
+        std::string image_path = (image_path_base / image_name).string();
 
         cv::imwrite(image_path, features_image);
+    }
+}
+
+void LowLevelOpenCVStitcher::debugImages(SourceImages &source_images,
+                                         path debug_path)
+{
+    boost::filesystem::create_directories(debug_path.string());
+
+    for (size_t i = 0; i < source_images.images.size(); ++i) {
+        std::string image_name = (boost::format("%1%.jpg") % std::to_string(i)).str();
+        std::string image_path = (debug_path / image_name).string();
+        cv::imwrite(image_path, source_images.images[i]);
     }
 }
 
@@ -764,8 +776,11 @@ void LowLevelOpenCVStitcher::stitch(cv::Mat &result)
 
     // Load images and determine work and seam scales.
     SourceImages source_images(_panorama, _logger);
+    source_images.ensureImageCount();
     double work_scale = getWorkScale(source_images);
     double seam_scale = getSeamScale(source_images);
+
+    undistortImages(source_images, config.debug, config.debug_path);
 
     // Find features, find matches, and scale images.
     auto features = findFeatures(source_images, work_scale);
@@ -813,6 +828,36 @@ void LowLevelOpenCVStitcher::stitch(cv::Mat &result)
     source_images.filter(keep_indices);
     compose(source_images, cameras, exposure_compensator, warp_results, work_scale,
             warped_image_scale, result);
+}
+
+void LowLevelOpenCVStitcher::undistortImages(SourceImages &source_images,
+                                             bool debug, path debug_path)
+{
+    boost::optional<Camera> camera_ = CameraModels().detect(_panorama.front());
+    if (!camera_.has_value()) {
+        LOG(debug) << "Camera model not identified.";
+        return;
+    }
+
+    Camera camera = camera_.get();
+    if (!camera.distortion_model) {
+        LOG(debug) << "Camera model doesn't have a distortion model.  Skipping undistortion.";
+        return;
+    }
+
+    if (camera.distortion_model->enabled()) {
+        LOG(debug) << "Undistorting images.";
+
+        cv::Mat K = camera.K();
+        camera.distortion_model->undistort(source_images.images, K);
+
+        if (config.debug) {
+            path undistorted_image_path = config.debug_path / "undistorted";
+            debugImages(source_images, undistorted_image_path);
+        }
+
+        LOG(debug) << "Finished undistorting images.";
+    }
 }
 
 LowLevelOpenCVStitcher::WarpResults

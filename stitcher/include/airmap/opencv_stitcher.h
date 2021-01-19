@@ -22,6 +22,7 @@
 
 #include "camera.h"
 #include "camera_models.h"
+#include "distortion.h"
 #include "gimbal.h"
 #include "images.h"
 #include "logger.h"
@@ -454,6 +455,14 @@ private:
                        cv::DrawMatchesFlags flags = cv::DrawMatchesFlags::DEFAULT);
 
     /**
+     * @brief debugImages
+     * Save images in current state for debugging.
+     * @param source_images
+     * @param path
+     */
+    void debugImages(SourceImages &source_images, path debug_path);
+
+    /**
      * @brief debugMatches
      * Draw feature matches on source images and save the results.
      * @param source_images
@@ -620,6 +629,17 @@ private:
      */
     cv::Ptr<cv::detail::ExposureCompensator>
     prepareExposureCompensation(WarpResults &warp_results);
+
+    /**
+     * @brief undistortImages
+     * Optionally undistort the images, depending on whether the
+     * camera model can be identified, and is required for that camera.
+     * @param source_images Source images object.
+     * @param debug Whether to save undistorted images for debugging.
+     * @param debug_path Path to the directory to save debug images.
+     */
+    void undistortImages(SourceImages &source_images, bool debug,
+                         path debug_path = path("debug") / "undistort");
 
     /**
      * @brief warpImages

@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 #include "airmap/camera.h"
 #include "airmap/camera_models.h"
+#include "airmap/distortion.h"
 #include "airmap/panorama.h"
 
 #include <boost/filesystem.hpp>

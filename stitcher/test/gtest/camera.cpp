@@ -21,46 +21,20 @@ protected:
 
     Camera createCamera()
     {
-        Camera::Distortion distortion = createDistortion();
         return Camera(focal_length_meters, sensor_dimensions_meters,
-                      sensor_dimensions_pixels, principal_point,
-                      distortion);
+                      sensor_dimensions_pixels, principal_point);
     }
 
     Camera createCalibratedCamera()
     {
-        Camera::Distortion distortion = createDistortion();
         return Camera(focal_length_meters, sensor_dimensions_meters,
                       sensor_dimensions_pixels, principal_point,
-                      distortion, calibration_intrinsics);
-    }
-
-    Camera::Distortion createDistortion()
-    {
-        cv::Mat distortion_vector = createDistortionVector();
-        double k1 = distortion_vector.at<double>(0, 0);
-        double k2 = distortion_vector.at<double>(1, 0);
-        double p1 = distortion_vector.at<double>(2, 0);
-        double p2 = distortion_vector.at<double>(3, 0);
-        double k3 = distortion_vector.at<double>(4, 0);
-        return Camera::Distortion(k1, k2, p1, p2, k3);
+                      calibration_intrinsics);
     }
 
     cv::Point2d createFocalLengthPixels()
     {
         return cv::Point2d(2990.2714681440448, 2949.934545454546);
-    }
-
-    cv::Mat createDistortionVector()
-    {
-        double k1 = 2.8391010208309218e-02;
-        double k2 = -2.7239202041003809e-02;
-        double k3 = 0.0;
-        double p1 = -2.4700935014356916e-03;
-        double p2 = 6.1345950301455029e-03;
-
-        return (cv::Mat_<double>(5, 1) <<
-                k1, k2, p1, p2, k3);
     }
 
     cv::Mat createCalibratedIntrinsicsMatrix(bool scale = false)
@@ -112,38 +86,13 @@ protected:
 
 };
 
-TEST_F(CameraTest, distortionStruct)
-{
-    cv::Mat distortion_vector = createDistortionVector();
-    double k1 = distortion_vector.at<double>(0, 0);
-    double k2 = distortion_vector.at<double>(1, 0);
-    double p1 = distortion_vector.at<double>(2, 0);
-    double p2 = distortion_vector.at<double>(3, 0);
-    double k3 = distortion_vector.at<double>(4, 0);
-
-    Camera::Distortion distortion = createDistortion();
-    EXPECT_DOUBLE_EQ(distortion.k1(), k1);
-    EXPECT_DOUBLE_EQ(distortion.k2(), k2);
-    EXPECT_DOUBLE_EQ(distortion.k3(), k3);
-    EXPECT_DOUBLE_EQ(distortion.p1(), p1);
-    EXPECT_DOUBLE_EQ(distortion.p2(), p2);
-}
-
-TEST_F(CameraTest, distortionVector)
-{
-    Camera::Distortion expected_distortion = createDistortion();
-    cv::Mat actual_vector = createDistortionVector();
-    Camera::Distortion actual_distortion(actual_vector);
-    EXPECT_EQ(expected_distortion, actual_distortion);
-}
-
 TEST_F(CameraTest, cameraStruct)
 {
     Camera camera = createCamera();
 
     // Test distortion vector.
-    Camera::Distortion expected_distortion = createDistortion();
-    EXPECT_EQ(camera.distortion, expected_distortion);
+    // Camera::Distortion expected_distortion = createDistortion();
+    // EXPECT_EQ(camera.distortion, expected_distortion);
 
     // Test intrinsics.
     EXPECT_DOUBLE_EQ(camera.focal_length_meters, focal_length_meters);
