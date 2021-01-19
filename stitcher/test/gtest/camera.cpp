@@ -90,10 +90,6 @@ TEST_F(CameraTest, cameraStruct)
 {
     Camera camera = createCamera();
 
-    // Test distortion vector.
-    // Camera::Distortion expected_distortion = createDistortion();
-    // EXPECT_EQ(camera.distortion, expected_distortion);
-
     // Test intrinsics.
     EXPECT_DOUBLE_EQ(camera.focal_length_meters, focal_length_meters);
     EXPECT_DOUBLE_EQ(camera.sensor_dimensions_meters.x, sensor_dimensions_meters.x);

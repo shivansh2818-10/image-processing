@@ -332,7 +332,7 @@ void LowLevelOpenCVStitcher::debugMatches(SourceImages &source_images,
             cv::Scalar::all(-1), std::vector<char>(), flags);
 
         std::string image_name = (boost::format("%1%_%2%.jpg") % std::to_string(match.src_img_idx) % std::to_string(match.dst_img_idx)).str();
-        std::string image_path = (image_path_base / path(image_name)).string();
+        std::string image_path = (image_path_base / image_name).string();
 
         cv::imwrite(image_path, img_matches);
     }
@@ -357,7 +357,7 @@ void LowLevelOpenCVStitcher::debugWarpResults(WarpResults &warp_results)
 
     for (size_t i = 0; i < warp_results.images_warped.size(); ++i) {
         std::string image_name = (boost::format("%1%.jpg") % std::to_string(i)).str();
-        std::string image_path = (image_path_base / path(image_name)).string();
+        std::string image_path = (image_path_base / image_name).string();
 
         cv::imwrite(image_path, warp_results.images_warped[i]);
     }
