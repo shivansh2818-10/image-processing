@@ -125,7 +125,7 @@ TEST_F(PinholeDistortionModelTest, pinholeUndistortImage)
     EXPECT_PRED_FORMAT2(opencv_assert::CvMatNe, actual_image, expected_image);
 
     /**
-     * NOTE(bkd): This is kindmof silly, but the cv::Mat comparison
+     * NOTE(bkd): This is kind of silly, but the cv::Mat comparison
      * (specifically, memcmp) fails unless the undistorted image is
      * written to disk and then read again.  It would be nice to
      * dig someday to see why that is.
@@ -207,7 +207,7 @@ TEST_F(ScaramuzzaDistortionModelTest, scaramuzzaUndistortImage)
     cv::Mat expected_image = createUndistortedImage();
 
     /**
-     * NOTE(bkd): This is kindmof silly, but the cv::Mat comparison
+     * NOTE(bkd): This is kind of silly, but the cv::Mat comparison
      * (specifically, memcmp) fails unless the undistorted image is
      * written to disk and then read again.  It would be nice to
      * dig someday to see why that is.
