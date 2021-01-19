@@ -62,7 +62,7 @@ protected:
                                                             / "distortion"
                                                             / "anafi_thermal"
                                                             / "undistorted";
-        path image_path = image_directory / "P5050970.JPG";
+        path image_path = image_directory / "P5050970.png";
         return cv::imread(image_path.string());
     }
 };
@@ -124,19 +124,8 @@ TEST_F(PinholeDistortionModelTest, pinholeUndistortImage)
     cv::Mat expected_image = createSourceImage();
     EXPECT_PRED_FORMAT2(opencv_assert::CvMatNe, actual_image, expected_image);
 
-    /**
-     * NOTE(bkd): This is kind of silly, but the cv::Mat comparison
-     * (specifically, memcmp) fails unless the undistorted image is
-     * written to disk and then read again.  It would be nice to
-     * dig someday to see why that is.
-     */
-    path undistorted_temp("undistorted_temp.jpg");
-    cv::imwrite(undistorted_temp.string(), actual_image);
-    actual_image = cv::imread(undistorted_temp.string());
     expected_image = createUndistortedImage();
-
     EXPECT_PRED_FORMAT2(opencv_assert::CvMatEq, actual_image, expected_image);
-    boost::filesystem::remove(undistorted_temp.string());
 }
 
 //
@@ -190,7 +179,7 @@ protected:
         path image_directory = path(__FILE__).parent_path() / ".." / "fixtures"
                                                             / "distortion" / "vesper"
                                                             / "undistorted";
-        path image_path = image_directory / "0.jpg";
+        path image_path = image_directory / "0.png";
         return cv::imread(image_path.string());
     }
 };
@@ -205,19 +194,7 @@ TEST_F(ScaramuzzaDistortionModelTest, scaramuzzaUndistortImage)
     cv::Mat actual_image = createSourceImage();
     distortion_model.undistort(actual_image, camera.K());
     cv::Mat expected_image = createUndistortedImage();
-
-    /**
-     * NOTE(bkd): This is kind of silly, but the cv::Mat comparison
-     * (specifically, memcmp) fails unless the undistorted image is
-     * written to disk and then read again.  It would be nice to
-     * dig someday to see why that is.
-     */
-    path undistorted_temp("undistorted_temp.jpg");
-    cv::imwrite(undistorted_temp.string(), actual_image);
-    actual_image = cv::imread(undistorted_temp.string());
-
     EXPECT_PRED_FORMAT2(opencv_assert::CvMatEq, actual_image, expected_image);
-    boost::filesystem::remove(undistorted_temp.string());
 }
 
 } // namespace stitcher
