@@ -33,7 +33,7 @@ public:
 
     /**
      * @brief undistort
-     * Undistort all images.
+     * Undistort multiple images.
      * @param images Images to undistort.
      * @param K Camera intrinsics matrix.
      */
@@ -54,7 +54,7 @@ protected:
 
 /**
  * @brief OpencCVDistortionModel
- * OpenCV distortion model.
+ * Pinhole distortion model.
  */
 class PinholeDistortionModel : public DistortionModel
 {
@@ -167,7 +167,7 @@ public:
 
     /**
      * @brief undistort
-     * Undistort all images.
+     * Undistort multiple images.
      * @param images Images to undistort.
      * @param K Camera intrinsics matrix.
      */
@@ -202,7 +202,14 @@ std::ostream& operator<<(std::ostream &os,
 /**
  * @brief Scaramuzza
  * Scaramuzza distortion model.
- * https://sites.google.com/site/scarabotix/ocamcalib-toolbox
+ *
+ * createPerspectiveUndistortionMaps and worldToCamera are ported from
+ * code provided with the toolbox.
+ *
+ * Copyright (C) 2008 DAVIDE SCARAMUZZA, ETH Zurich
+ * Author: Davide Scaramuzza - email: davide.scaramuzza@ieee.org
+ *
+ * More information: https://sites.google.com/site/scarabotix/ocamcalib-toolbox
  */
 class ScaramuzzaDistortionModel : public DistortionModel
 {
