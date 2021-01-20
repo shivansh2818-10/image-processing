@@ -180,12 +180,12 @@ void ScaramuzzaDistortionModel::createPerspectiveUndistortionMaps(cv::Mat &map_x
 
     for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; ++x) {
-            cv::Point3d world_point(y - y_center, x - x_center, z);
+            cv::Point3d world_point(x - x_center, y - y_center, z);
             cv::Point2d camera_point;
             worldToCamera(world_point, camera_point);
 
-            map_x.at<float>(y, x) = static_cast<float>(camera_point.y);
-            map_y.at<float>(y, x) = static_cast<float>(camera_point.x);
+            map_x.at<float>(y, x) = static_cast<float>(camera_point.x);
+            map_y.at<float>(y, x) = static_cast<float>(camera_point.y);
         }
     }
 }

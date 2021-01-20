@@ -85,15 +85,15 @@ struct CameraModels
                                        -27539.670273, -36582.498387,
                                        -29546.356228, -14151.354913,
                                        -3691.813594, -403.401517 };
-        double xc = 539.041192;
-        double yc = 959.042242;
+        double xc = 959.042242;
+        double yc = 539.041192;
         double c = 0.999434;
         double d = -0.000385;
         double e = -0.000025;
         double width = 1920;
         double height = 1080;
-        double scale_factor = 2;
-        double resolution_scale = 0.5;
+        double scale_factor = 1.5;
+        double resolution_scale = 2;
 
         auto distortion_parameters = ScaramuzzaDistortionModel::Parameters(
             pol, inv_pol, xc, yc, c, d, e, width, height, scale_factor,
