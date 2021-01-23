@@ -11,6 +11,8 @@
 #include "logger.h"
 #include "panorama.h"
 
+#include <random>
+
 using namespace airmap::logging;
 
 namespace airmap {
@@ -41,12 +43,6 @@ struct SourceImages
     std::vector<cv::Mat> images;
 
     /**
-     * @brief sizes
-     * Sizes of the original images (but changed after warping).
-     */
-    std::vector<cv::Size> sizes;
-
-    /**
      * @brief logger
      */
     std::shared_ptr<logging::Logger> _logger;
@@ -65,7 +61,6 @@ struct SourceImages
                  const int _minimumImageCount = 2)
         : panorama(panorama)
         , images()
-        , sizes()
         , _logger(logger)
         , minimumImageCount(_minimumImageCount)
     {
@@ -120,6 +115,21 @@ struct SourceImages
      * @param interpolation
      */
     void scale(double scale, int interpolation = cv::INTER_LINEAR_EXACT);
+
+    /**
+     * @brief scaleToAvailableMemory
+     * Scale images based on available system memory.
+     * @param memoryBudgetMB How much RAM headroom can the stitcher assume it
+     * has to its exclusive disposal.
+     * @param maxInputImageSize No of pixels, to which to scale each
+     * input image down.
+     * @param inputSizeMB Total size, in MB, of the images.
+     * @param inputScaled Calculated scale.
+     * @param interpolation OpenCV resize interpolation method.
+     */
+    void scaleToAvailableMemory(size_t memoryBudgetMB, size_t &maxInputImageSize,
+                                size_t &inputSizeMB, double &inputScaled,
+                                int interpolation = cv::INTER_LINEAR_EXACT);
 };
 
 } // namespace stitcher
