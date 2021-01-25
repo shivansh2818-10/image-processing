@@ -208,13 +208,23 @@ public:
 
         /**
          * @brief seam_finder_graph_cut_terminal_cost
+         * The cost/weight of a terminal node (pixel in a source or sink).
          * 
+         * More info: https://www.cc.gatech.edu/~turk/my_papers/graph_cuts.pdf
          */
         float seam_finder_graph_cut_terminal_cost;
 
         /**
          * @brief seam_finder_graph_cut_bad_region_penalty
+         * An additional cost/weight added for a pixel that is in neither the
+         * source nor the sink.
          * 
+         * My (basic) understanding (which matches emperical results) is that
+         * a higher penalty makes it less likely for a seam to go through a
+         * region where there is no overlap between two images.  In practice,
+         * this seems effective in reducing gaps in the stitch.
+         * 
+         * More info: https://www.cc.gatech.edu/~turk/my_papers/graph_cuts.pdf
          */
         float seam_finder_graph_cut_bad_region_penalty;
 
