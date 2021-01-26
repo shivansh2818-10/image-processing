@@ -85,9 +85,10 @@ void SourceImages::resize(size_t new_size)
 
 void SourceImages::scale(double scale, int interpolation)
 {
-    for (size_t i = 0; i < images.size(); ++i) {
-        cv::Mat image = images[i];
-        cv::resize(image, images[i], cv::Size(), scale, scale, interpolation);
+    for (auto &image : images) {
+        cv::Mat resized;
+        cv::resize(image, resized, cv::Size(), scale, scale, interpolation);
+        image = resized;
     }
 }
 
@@ -96,9 +97,9 @@ void SourceImages::scaleToAvailableMemory(size_t memoryBudgetMB,
                         double &inputScaled, int interpolation)
 {
     size_t totalNoOfInputPixels = 0;
-    for (size_t i = 0; i < images.size(); ++i) {
-        size_t pixels = images[i].cols * images[i].rows;
-        inputScaled += (images[i].elemSize() * pixels) / (1024 * 1024);
+    for (auto &image : images) {
+        size_t pixels = image.cols * image.rows;
+        inputSizeMB += (image.elemSize() * pixels) / (1024 * 1024);
         totalNoOfInputPixels += pixels;
     }
 

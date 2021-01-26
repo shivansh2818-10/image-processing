@@ -699,9 +699,10 @@ LowLevelOpenCVStitcher::prepareExposureCompensation(
 Stitcher::Report LowLevelOpenCVStitcher::stitch()
 {
     cv::Mat result;
+    Stitcher::Report report;
     
     try {
-        Stitcher::Report report = stitch(result);
+        report = stitch(result);
     } catch (const std::exception &e) {
         // can indeed throw, e.g.:
         //.../OpenCV/modules/flann/src/miniflann.cpp:487: error: (-215:Assertion
@@ -712,7 +713,7 @@ Stitcher::Report LowLevelOpenCVStitcher::stitch()
     }
 
     postprocess(std::move(result));
-    return Stitcher::Report {};
+    return report;
 }
 
 void LowLevelOpenCVStitcher::cancel() { }
@@ -793,6 +794,8 @@ Stitcher::Report LowLevelOpenCVStitcher::stitch(cv::Mat &result)
     // Compose the final panorama.
     compose(source_images, cameras, exposure_compensator, warp_results,
             work_scale, compose_scale, warped_image_scale, result);
+
+    return report;
 }
 
 void LowLevelOpenCVStitcher::undistortImages(SourceImages &source_images)

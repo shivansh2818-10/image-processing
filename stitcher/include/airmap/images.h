@@ -126,6 +126,7 @@ struct SourceImages
      * @param inputSizeMB Total size, in MB, of the images.
      * @param inputScaled Calculated scale.
      * @param interpolation OpenCV resize interpolation method.
+     * @throws std::invalid_argument When RAM budget is too small.
      */
     void scaleToAvailableMemory(size_t memoryBudgetMB, size_t &maxInputImageSize,
                                 size_t &inputSizeMB, double &inputScaled,

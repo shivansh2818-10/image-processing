@@ -292,8 +292,8 @@ public:
                 range_width = -1;
                 seam_megapix = 0.1;
                 seam_finder_type = SeamFinderType::GraphCutColorGrad;
-                seam_finder_graph_cut_terminal_cost = 1.f;
-                seam_finder_graph_cut_bad_region_penalty = 1000.f;
+                seam_finder_graph_cut_terminal_cost = 10000.f;
+                seam_finder_graph_cut_bad_region_penalty = 10000000.f;
                 try_cuda = false;
                 warper_type = WarperType::Spherical;
                 wave_correct = true;
