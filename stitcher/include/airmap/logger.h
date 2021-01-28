@@ -117,13 +117,13 @@ class stdoe_logger : public Logger {
     void log(Severity severity, const char* message, const char* component) override {
         switch (severity){
             case Severity::info:
-                std::cout << "[" << component << "]>" << message << std::endl;
+                std::cout << "[" << component << "]>" << message << std::flush;
             break;
             case Severity::debug:
-                std::cout << "[" << component << "]>" << message << std::endl;
+                std::cout << "[" << component << "]>" << message << std::flush;
             break;
             case Severity::error:
-                std::cerr << "[" << component << "]>" << message << std::endl;
+                std::cerr << "[" << component << "]>" << message << std::flush;
             break;
         }
     }
