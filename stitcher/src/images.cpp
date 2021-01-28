@@ -17,7 +17,7 @@ void SourceImages::ensureImageCount()
 {
     if (images.size() < minimumImageCount) {
         std::string message = (boost::format("Need at least %1% images, but only have %2%.") % minimumImageCount % images.size()).str();
-        LOG(error) << message.c_str();
+        _logger->log(Logger::Severity::error, message.c_str(), "stitcher");
         throw std::invalid_argument(message);
     }
 }
@@ -40,7 +40,9 @@ void SourceImages::filter(std::vector<int> &keep_indices)
     gimbal_orientations = gimbal_orientations_;
     images = images_;
 
-    LOG(debug) << "Discarded" << original_count - keep_count << "images.";
+    std::stringstream message;
+    message << "Discarded " << original_count - keep_count << " images.";
+    _logger->log(Logger::Severity::debug, message, "stitcher");
 
     ensureImageCount();
 }
@@ -122,9 +124,9 @@ void SourceImages::scaleToAvailableMemory(size_t memoryBudgetMB,
     if (inputScaled < 1.0) {
         if (inputScaled < 0.2) {
             std::stringstream ss;
-            ss << "The RAM budget given (" << memoryBudgetMB
+            ss << "The RAM budget given ( " << memoryBudgetMB
                << "MB) enforces too much scaling (" << inputScaled << ") of the ("
-               << inputSizeMB << "MB of) input, aborting.";
+               << inputSizeMB << " MB of) input, aborting.";
             throw std::invalid_argument(ss.str());
         }
 
@@ -139,15 +141,23 @@ void SourceImages::scaleToAvailableMemory(size_t memoryBudgetMB,
         // Scale the images.
         scale(inputScaled, interpolation);
 
-        LOG(info) << "Scaled" << inputSizeMB << "MB of input to"
-                  << inputSizeMB * inputScaled << "MB (by "
-                  << inputScaled << "), the lesser of:";
-        LOG(info) << "- " << maxRAMBudgetScale << "to fit the given RAM budget of"
-                  << memoryBudgetMB << "MB and";
+        std::stringstream message;
+        message << "Scaled " << inputSizeMB << " MB of input to"
+                << inputSizeMB * inputScaled << " MB (by "
+                << inputScaled << "), the lesser of: ";
+        _logger->log(Logger::Severity::info, message, "stitcher");
+
+        message.str("");
+        message << " - " << maxRAMBudgetScale << " to fit the given RAM budget of "
+                << memoryBudgetMB << " MB and ";
+        _logger->log(Logger::Severity::info, message, "stitcher");
+
         size_t maxInputImgWidth = std::sqrt(4 * maxInputImageSize / 3);
         size_t maxInputImgHeight = 3 * maxInputImgWidth / 4;
-        LOG(info) << "- " << maxInputImageScale << "max input image size of"
-                  << maxInputImgWidth << "x" << maxInputImgHeight;
+        message.str("");
+        message << " - " << maxInputImageScale << " max input image size of "
+                << maxInputImgWidth << "x" << maxInputImgHeight;
+        _logger->log(Logger::Severity::info, message, "stitcher");
     }
 }
 

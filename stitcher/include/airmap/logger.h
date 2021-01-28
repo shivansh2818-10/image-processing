@@ -44,6 +44,13 @@ class AIRMAP_EXPORT Logger : DoNotCopyOrMove {
   /// gracefully.
   virtual void log(Severity severity, const char* message, const char* component) = 0;
 
+  /// accepts a std::stringstream and converts to char* before passing to the
+  /// main log function.
+  void log(Severity severity, std::stringstream &message, const char* component)
+  {
+      log(severity, message.str().c_str(), component);
+  }
+
   /// should_log should return true if 'message' with 'severity' originating from
   /// 'component' should be logged.
   ///
@@ -110,20 +117,18 @@ private:
     const char *_component;
 };
 
-#define LOG(level) ostream_logger(_logger, Logger::Severity::level, "stitcher")
-
 class stdoe_logger : public Logger {
     public:
     void log(Severity severity, const char* message, const char* component) override {
         switch (severity){
             case Severity::info:
-                std::cout << "[" << component << "]>" << message << std::flush;
+                std::cout << "[" << component << "]>" << message << std::endl;
             break;
             case Severity::debug:
-                std::cout << "[" << component << "]>" << message << std::flush;
+                std::cout << "[" << component << "]>" << message << std::endl;
             break;
             case Severity::error:
-                std::cerr << "[" << component << "]>" << message << std::flush;
+                std::cerr << "[" << component << "]>" << message << std::endl;
             break;
         }
     }
@@ -132,6 +137,8 @@ class stdoe_logger : public Logger {
         return true;
     }
 };
+
+#define LOG(level) ostream_logger(std::make_shared<stdoe_logger>(), Logger::Severity::level, "stitcher")
 
 } // namespace logging
 } // namespace airmap

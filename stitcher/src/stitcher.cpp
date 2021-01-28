@@ -78,7 +78,9 @@ void OpenCVStitcher::postprocess(cv::Mat &&result)
     assert(result.rows == result.cols / 2);
 
     cv::imwrite(_outputPath, result);
-    LOG(info) << "Written stitched image to " << _outputPath << std::endl;
+    std::stringstream message;
+    message << "Written stitched image to " << _outputPath << std::endl;
+    _logger->log(Logger::Severity::info, message, "stitcher");
     if (_parameters.alsoCreateCubeMap) {
         std::string base_path = (path(_outputPath).parent_path()
                                  / path(_outputPath).stem())
@@ -91,8 +93,10 @@ void OpenCVStitcher::postprocess(cv::Mat &&result)
                                  { CubeMap::Face::Left, base_path + ".left.jpg" },
                                  { CubeMap::Face::Top, base_path + ".top.jpg" },
                                  { CubeMap::Face::Bottom, base_path + ".bottom.jpg" } });
-        LOG(info) << "Written cubemap of the stitched image to " << base_path
-                  << std::endl;
+        std::stringstream message;
+        message << "Written cubemap of the stitched image to " << base_path
+                << std::endl;
+        _logger->log(Logger::Severity::info, message, "stitcher");
     }
 }
 
@@ -112,14 +116,14 @@ void LowLevelOpenCVStitcher::adjustCameraParameters(
         std::vector<cv::detail::MatchesInfo> &matches,
         std::vector<cv::detail::CameraParams> &cameras)
 {
-    LOG(debug) << "Adjusting camera parameters.";
+    _logger->log(Logger::Severity::debug, "Adjusting camera parameters.", "stitcher");
     auto bundle_adjuster = getBundleAdjuster();
     if (!(*bundle_adjuster)(features, matches, cameras)) {
         std::string message = "Failed to adjust camera parameters.";
-        LOG(debug) << message.c_str();
+        _logger->log(Logger::Severity::error, message.c_str(), "stitcher");
         throw std::invalid_argument(message);
     }
-    LOG(debug) << "Finished adjusting camera parameters.";
+    _logger->log(Logger::Severity::debug, "Finished adjusting camera parameters.", "stitcher");
 }
 
 void LowLevelOpenCVStitcher::compose(
@@ -128,7 +132,7 @@ void LowLevelOpenCVStitcher::compose(
         LowLevelOpenCVStitcher::WarpResults &warp_results, double work_scale,
         double compose_scale, float warped_image_scale, cv::Mat &result)
 {
-    LOG(debug) << "Composing stitched image.";
+    _logger->log(Logger::Severity::debug, "Composing stitched image.", "stitcher");
 
     // compute relative scales
     float compose_work_aspect =
@@ -198,7 +202,7 @@ void LowLevelOpenCVStitcher::compose(
 
     cv::Mat result_mask;
     blender->blend(result, result_mask);
-    LOG(debug) << "Finished composing stitched image.";
+    _logger->log(Logger::Severity::debug, "Finished composing stitched image.", "stitcher");
 }
 
 void LowLevelOpenCVStitcher::debugFeatures(SourceImages &source_images,
@@ -296,13 +300,13 @@ std::vector<cv::detail::CameraParams> LowLevelOpenCVStitcher::estimateCameraPara
         std::vector<cv::detail::ImageFeatures> &features,
         std::vector<cv::detail::MatchesInfo> &matches)
 {
-    LOG(debug) << "Estimating camera parameters.";
+    _logger->log(Logger::Severity::debug, "Estimating camera parameters.", "stitcher");
     std::vector<cv::detail::CameraParams> cameras;
 
     auto estimator = getEstimator();
     if (!(*estimator)(features, matches, cameras)) {
         std::string message = "Failed to estimate camera parameters.";
-        LOG(debug) << message.c_str();
+        _logger->log(Logger::Severity::debug, message.c_str(), "stitcher");
         throw std::invalid_argument(message);
     }
 
@@ -312,14 +316,14 @@ std::vector<cv::detail::CameraParams> LowLevelOpenCVStitcher::estimateCameraPara
         cameras[i].R = R;
     }
 
-    LOG(debug) << "Finished camera parameters estimation.";
+    _logger->log(Logger::Severity::debug, "Finished camera parameters estimation.", "stitcher");
     return cameras;
 }
 
 std::vector<cv::detail::ImageFeatures>
 LowLevelOpenCVStitcher::findFeatures(SourceImages &source_images)
 {
-    LOG(debug) << "Finding features.";
+    _logger->log(Logger::Severity::debug, "Finding features.", "stitcher");
     std::vector<cv::detail::ImageFeatures> features(source_images.images.size());
     cv::Ptr<cv::Feature2D> finder = getFeaturesFinder();
 
@@ -330,7 +334,7 @@ LowLevelOpenCVStitcher::findFeatures(SourceImages &source_images)
         features[i].img_idx = static_cast<int>(i);
     }
 
-    LOG(debug) << "Finished finding features.";
+    _logger->log(Logger::Severity::debug, "Finished finding features.", "stitcher");
     return features;
 }
 
@@ -353,11 +357,11 @@ double LowLevelOpenCVStitcher::findMedianFocalLength(
 
 void LowLevelOpenCVStitcher::findSeams(LowLevelOpenCVStitcher::WarpResults &warp_results)
 {
-    LOG(debug) << "Finding seams.";
+    _logger->log(Logger::Severity::debug, "Finding seams.", "stitcher");
     auto seam_finder = getSeamFinder();
     seam_finder->find(warp_results.images_warped_f, warp_results.corners,
                       warp_results.masks_warped);
-    LOG(debug) << "Finished finding seams.";
+    _logger->log(Logger::Severity::debug, "Finished finding seams.", "stitcher");
 }
 
 cv::Ptr<cv::detail::BundleAdjusterBase> LowLevelOpenCVStitcher::getBundleAdjuster()
@@ -644,12 +648,12 @@ double LowLevelOpenCVStitcher::getWorkScale(SourceImages &source_images)
 std::vector<cv::detail::MatchesInfo>
 LowLevelOpenCVStitcher::matchFeatures(std::vector<cv::detail::ImageFeatures> &features)
 {
-    LOG(debug) << "Matching features.";
+    _logger->log(Logger::Severity::debug, "Matching features.", "stitcher");
     std::vector<cv::detail::MatchesInfo> matches;
     cv::Ptr<cv::detail::FeaturesMatcher> matcher = getFeaturesMatcher();
     (*matcher)(features, matches);
     matcher->collectGarbage();
-    LOG(debug) << "Finished matching features.";
+    _logger->log(Logger::Severity::debug, "Finished matching features.", "stitcher");
     return matches;
 }
 
@@ -671,13 +675,17 @@ LowLevelOpenCVStitcher::prepareBlender(WarpResults &warp_results)
                 dynamic_cast<cv::detail::MultiBandBlender *>(blender.get());
         multiband_blender->setNumBands(static_cast<int>(
                 ceil(log(static_cast<double>(blend_width)) / log(2.)) - 1.));
-        LOG(debug) << "Multi-band blender prepared with " << multiband_blender->numBands()
-                   << " bands.";
+        std::stringstream message;
+        message << "Multi-band blender prepared with " << multiband_blender->numBands()
+                << " bands.";
+        _logger->log(Logger::Severity::debug, message, "stitcher");
     } else if (config.blender_type == cv::detail::Blender::FEATHER) {
         auto *feather_blender = dynamic_cast<cv::detail::FeatherBlender *>(blender.get());
         feather_blender->setSharpness(1.f / blend_width);
-        LOG(debug) << "Feather blender prepared with " << feather_blender->sharpness()
-                   << " sharpness.";
+        std::stringstream message;
+        message << "Feather blender prepared with " << feather_blender->sharpness()
+                << " sharpness.";
+        _logger->log(Logger::Severity::debug, message, "stitcher");
     }
 
     blender->prepare(warp_results.corners, warp_results.sizes);
@@ -688,11 +696,11 @@ cv::Ptr<cv::detail::ExposureCompensator>
 LowLevelOpenCVStitcher::prepareExposureCompensation(
         LowLevelOpenCVStitcher::WarpResults &warp_results)
 {
-    LOG(debug) << "Preparing exposure compensation.";
+    _logger->log(Logger::Severity::debug, "Preparing exposure compensation.", "stitcher");
     auto compensator = getExposureCompensator();
     compensator->feed(warp_results.corners, warp_results.images_warped,
                       warp_results.masks_warped);
-    LOG(debug) << "Finished exposure compensation preparation.";
+    _logger->log(Logger::Severity::debug, "Finished exposure compensation preparation.", "stitcher");
     return compensator;
 }
 
@@ -802,18 +810,18 @@ void LowLevelOpenCVStitcher::undistortImages(SourceImages &source_images)
 {
     boost::optional<Camera> camera_ = CameraModels().detect(_panorama.front());
     if (!camera_.has_value()) {
-        LOG(debug) << "Camera model not identified.";
+        _logger->log(Logger::Severity::debug, "Camera model not identified.", "stitcher");
         return;
     }
 
     Camera camera = camera_.get();
     if (!camera.distortion_model) {
-        LOG(debug) << "Camera model doesn't have a distortion model.  Skipping undistortion.";
+        _logger->log(Logger::Severity::debug, "Camera model doesn't have a distortion model.  Skipping undistortion.", "stitcher");
         return;
     }
 
     if (camera.distortion_model->enabled()) {
-        LOG(debug) << "Undistorting images.";
+        _logger->log(Logger::Severity::debug, "Undistorting images.", "stitcher");
 
         cv::Mat K = camera.K();
         camera.distortion_model->undistort(source_images.images, K);
@@ -823,7 +831,7 @@ void LowLevelOpenCVStitcher::undistortImages(SourceImages &source_images)
             debugImages(source_images, undistorted_image_path);
         }
 
-        LOG(debug) << "Finished undistorting images.";
+        _logger->log(Logger::Severity::debug, "Finished undistorting images.", "stitcher");
     }
 }
 
@@ -832,7 +840,7 @@ LowLevelOpenCVStitcher::warpImages(SourceImages &source_images,
                                    std::vector<cv::detail::CameraParams> &cameras,
                                    float warped_image_scale, float seam_work_aspect)
 {
-    LOG(debug) << "Warping images.";
+    _logger->log(Logger::Severity::debug, "Warping images.", "stitcher");
 
     auto warper_creator = getWarperCreator();
     auto warper = warper_creator->create(warped_image_scale * seam_work_aspect);
@@ -863,7 +871,7 @@ LowLevelOpenCVStitcher::warpImages(SourceImages &source_images,
         warp_results.images_warped[i].convertTo(warp_results.images_warped_f[i], CV_32F);
     }
 
-    LOG(debug) << "Finished warping images.";
+    _logger->log(Logger::Severity::debug, "Finished warping images.", "stitcher");
     return warp_results;
 }
 
