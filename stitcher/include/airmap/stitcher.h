@@ -4,7 +4,7 @@
 #include <atomic>
 
 #include "airmap/panorama.h"
-#include "airmap/logger.h"
+#include "airmap/logger_moo.h"
 
 namespace airmap {
 namespace stitcher {

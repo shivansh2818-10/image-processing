@@ -25,7 +25,7 @@
 #include "distortion.h"
 #include "gimbal.h"
 #include "images.h"
-#include "logger.h"
+#include "logger_moo.h"
 #include "stitcher.h"
 
 using boost::filesystem::path;
