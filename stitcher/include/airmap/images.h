@@ -8,7 +8,7 @@
 #include <opencv2/stitching.hpp>
 
 #include "gimbal.h"
-#include "logger_moo.h"
+#include "logger.h"
 #include "panorama.h"
 
 #include <random>

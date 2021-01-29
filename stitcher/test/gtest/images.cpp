@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 #include "airmap/images.h"
-#include "airmap/logger_moo.h"
+#include "airmap/logger.h"
 #include "airmap/panorama.h"
 #include "opencv_assert/mat_compare.h"
 
