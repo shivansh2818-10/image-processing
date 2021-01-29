@@ -10,8 +10,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef AIRMAP_LOGGER_H_
-#define AIRMAP_LOGGER_H_
+#pragma once
 
 #include <airmap/do_not_copy_or_move.h>
 #include <airmap/visibility.h>
@@ -142,5 +141,3 @@ class stdoe_logger : public Logger {
 
 } // namespace logging
 } // namespace airmap
-
-#endif  // AIRMAP_LOGGER_H_

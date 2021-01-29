@@ -1,8 +1,8 @@
 #pragma once
 
-#include "camera.h"
-#include "distortion.h"
-#include "panorama.h"
+#include "airmap/camera.h"
+#include "airmap/distortion.h"
+#include "airmap/panorama.h"
 
 #include <boost/optional.hpp>
 #include <iostream>

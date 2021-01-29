@@ -7,13 +7,13 @@
 #include <opencv2/opencv_modules.hpp>
 #include <opencv2/stitching.hpp>
 
-#include "gimbal.h"
-#include "logger.h"
-#include "panorama.h"
+#include "airmap/gimbal.h"
+#include "airmap/logger_s.h"
+#include "airmap/panorama.h"
 
 #include <random>
 
-using namespace airmap::logging;
+using Logger = airmap::logging::Logger;
 
 namespace airmap {
 namespace stitcher {
@@ -45,7 +45,7 @@ struct SourceImages
     /**
      * @brief logger
      */
-    std::shared_ptr<logging::Logger> _logger;
+    std::shared_ptr<Logger> _logger;
 
     /**
      * @brief minimumImageCount
@@ -57,7 +57,7 @@ struct SourceImages
      * @brief SourceImages
      * @param panorama Source image paths and metadata.
      */
-    SourceImages(const Panorama &panorama, std::shared_ptr<logging::Logger> logger,
+    SourceImages(const Panorama &panorama, std::shared_ptr<Logger> logger,
                  const int _minimumImageCount = 2)
         : panorama(panorama)
         , images()

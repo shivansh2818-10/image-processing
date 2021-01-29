@@ -1,6 +1,6 @@
 #pragma once
 
-#include "images.h"
+#include "airmap/images.h"
 
 #include "boost/filesystem.hpp"
 #include "boost/format.hpp"
@@ -24,6 +24,7 @@ class DistortionModel
 {
 public:
     DistortionModel(bool enabled_ = true);
+    virtual ~DistortionModel() = 0;
 
     /**
      * @brief enabled

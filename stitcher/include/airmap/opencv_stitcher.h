@@ -20,13 +20,13 @@
 #include <opencv2/stitching/detail/warpers.hpp>
 #include <opencv2/stitching/warpers.hpp>
 
-#include "camera.h"
-#include "camera_models.h"
-#include "distortion.h"
-#include "gimbal.h"
-#include "images.h"
-#include "logger.h"
-#include "stitcher.h"
+#include "airmap/camera.h"
+#include "airmap/camera_models.h"
+#include "airmap/distortion.h"
+#include "airmap/gimbal.h"
+#include "airmap/images.h"
+#include "airmap/logger_s.h"
+#include "airmap/stitcher.h"
 
 using boost::filesystem::path;
 
@@ -44,12 +44,12 @@ public:
                    const std::string &outputPath,
                    std::shared_ptr<Logger> logger,
                    bool debug = false, path debugPath = path("debug"))
-        : _panorama(panorama)
+        : _debug(debug)
+        , _debugPath(debugPath)
+        , _logger(logger)
+        , _panorama(panorama)
         , _parameters(parameters)
         , _outputPath(outputPath)
-        , _logger(logger)
-        , _debug(debug)
-        , _debugPath(debugPath)
     {
     }
 
@@ -60,10 +60,10 @@ public:
 protected:
     bool _debug;
     path _debugPath;
+    std::shared_ptr<Logger> _logger;
     Panorama _panorama;
     Panorama::Parameters _parameters;
     std::string _outputPath;
-    std::shared_ptr<Logger> _logger;
 };
 
 /**

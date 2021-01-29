@@ -4,7 +4,7 @@
 #include <atomic>
 
 #include "airmap/panorama.h"
-#include "airmap/logger.h"
+#include "airmap/logger_s.h"
 
 namespace airmap {
 namespace stitcher {
@@ -66,7 +66,7 @@ class RetryingStitcher : public Stitcher
 public:
     RetryingStitcher(SharedPtr underlying,
                      const Panorama::Parameters &parameters,
-                     std::shared_ptr<Logger> logger)
+                     std::shared_ptr<logging::Logger> logger)
         : _underlying(underlying)
         , _retries(parameters.retries)
         , _logger(logger)
@@ -83,7 +83,7 @@ public:
                 }
                 std::stringstream ss;
                 ss << "Stitching failed with " << e.what() << ", retrying, retries left " << _retries - i;
-                _logger->log(Logger::Severity::error, ss.str().c_str(), "stitcher");
+                _logger->log(logging::Logger::Severity::error, ss.str().c_str(), "stitcher");
             }
         }
         return _underlying->stitch();
@@ -96,7 +96,7 @@ public:
 private:
     Stitcher::SharedPtr _underlying;
     std::atomic<size_t> _retries;
-    std::shared_ptr<Logger> _logger;
+    std::shared_ptr<logging::Logger> _logger;
 };
 
 

@@ -8,6 +8,8 @@ namespace stitcher {
 // DistortionModel
 // 
 //
+DistortionModel::~DistortionModel() { }
+
 bool DistortionModel::enabled() const
 {
     return _enabled;

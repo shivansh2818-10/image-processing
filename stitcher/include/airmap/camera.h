@@ -1,6 +1,6 @@
 #pragma once
 
-#include "distortion.h"
+#include "airmap/distortion.h"
 
 #include <boost/optional.hpp>
 #include <opencv2/core/utility.hpp>
@@ -42,6 +42,12 @@ struct Camera
     double focal_length_meters;
 
     /**
+     * @brief principal_point
+     * Principal point.
+     */
+    cv::Point2d principal_point;
+
+    /**
      * @brief sensor_dimensions_meters
      * Sensor dimensions in meters.
      */
@@ -54,12 +60,6 @@ struct Camera
     cv::Point2d sensor_dimensions_pixels;
 
     /**
-     * @brief principal_point
-     * Principal point.
-     */
-    cv::Point2d principal_point;
-
-    /**
      * @brief Camera
      * Create a camera.
      */
@@ -68,20 +68,20 @@ struct Camera
            boost::optional<cv::Mat> _calibration_intrinsics =
                boost::optional<cv::Mat>(),
            std::shared_ptr<DistortionModel> _distortion_model = nullptr)
-        : focal_length_meters(_focal_length_meters)
+        : calibration_intrinsics(_calibration_intrinsics)
+        , distortion_model(std::move(_distortion_model))
+        , focal_length_meters(_focal_length_meters)
+        , principal_point(_principal_point)
         , sensor_dimensions_meters(_sensor_dimensions_meters)
         , sensor_dimensions_pixels(_sensor_dimensions_pixels)
-        , principal_point(_principal_point)
-        , calibration_intrinsics(_calibration_intrinsics)
-        , distortion_model(std::move(_distortion_model))
     {
     }
 
     Camera()
         : focal_length_meters(0)
+        , principal_point(cv::Point2d(0, 0))
         , sensor_dimensions_meters(cv::Point2d(0, 0))
         , sensor_dimensions_pixels(cv::Point2d(0, 0))
-        , principal_point(cv::Point2d(0, 0))
     {
     }
 
