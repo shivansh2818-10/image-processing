@@ -15,7 +15,7 @@ void SourceImages::clear()
 
 void SourceImages::ensureImageCount()
 {
-    if (images.size() < minimumImageCount) {
+    if (static_cast<int>(images.size()) < minimumImageCount) {
         std::string message = (boost::format("Need at least %1% images, but only have %2%.") % minimumImageCount % images.size()).str();
         _logger->log(Logger::Severity::error, message.c_str(), "stitcher");
         throw std::invalid_argument(message);
