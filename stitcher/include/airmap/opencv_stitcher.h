@@ -25,7 +25,7 @@
 #include "airmap/distortion.h"
 #include "airmap/gimbal.h"
 #include "airmap/images.h"
-#include "airmap/logger_s.h"
+#include "airmap/logging.h"
 #include "airmap/stitcher.h"
 
 using boost::filesystem::path;

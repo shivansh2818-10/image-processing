@@ -8,7 +8,7 @@
 #include <opencv2/stitching.hpp>
 
 #include "airmap/gimbal.h"
-#include "airmap/logger_s.h"
+#include "airmap/logging.h"
 #include "airmap/panorama.h"
 
 #include <random>
