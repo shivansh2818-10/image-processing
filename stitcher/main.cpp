@@ -28,6 +28,7 @@ int main(int argc, char *argv[])
             ("debug", "If set, debug artifacts (e.g. detected features, matches, warping, etc.) will be created in <debug_output>.")
             ("debug_path", boost::program_options::value<std::string>()->default_value("debug"),
                 "Path to the debug output.")
+            ("disable_opencl", "If set, OpenCL will be disabled.")
             ;
     try {
         boost::program_options::positional_options_description positional;
@@ -65,6 +66,7 @@ int main(int argc, char *argv[])
         Panorama::Parameters parameters{
             vm["ram_budget"].as<size_t>(),
             vm.count("cubemap") > 0,
+            vm.count("disable_opencl") <= 0,
             vm["retries"].as<size_t>()
         };
         RetryingStitcher{

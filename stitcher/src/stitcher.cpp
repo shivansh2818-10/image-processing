@@ -10,6 +10,25 @@ namespace stitcher {
 // OpenCVStitcher
 //
 //
+OpenCVStitcher::OpenCVStitcher(const Panorama &panorama,
+                               const Panorama::Parameters &parameters,
+                               const std::string &outputPath,
+                               std::shared_ptr<Logger> logger,
+                               bool debug, path debugPath)
+    : _debug(debug)
+    , _debugPath(debugPath)
+    , _logger(logger)
+    , _panorama(panorama)
+    , _parameters(parameters)
+    , _outputPath(outputPath)
+{
+    cv::ocl::setUseOpenCL(_parameters.enableOpenCL);
+    std::stringstream message;
+    message << "OpenCL is" << (cv::ocl::useOpenCL() ? " " : " not ")
+            << "activated.";
+    _logger->log(logging::Logger::Severity::debug, message, "stitcher");
+}
+
 Stitcher::Report OpenCVStitcher::stitch()
 {
     Stitcher::Report report;

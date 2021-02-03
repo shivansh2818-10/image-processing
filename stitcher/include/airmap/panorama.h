@@ -171,6 +171,7 @@ public:
         inline explicit Parameters(
                 size_t _memoryBudgetMB,
                 bool _alsoCreateCubeMap = true,
+                bool _enableOpenCL = true,
                 size_t _retries = 6,
                 double _maximumCropRatio = 99. / 100,
                 size_t _maxInputImageSize =
@@ -178,6 +179,7 @@ public:
                 )
             : memoryBudgetMB { _memoryBudgetMB }
             , alsoCreateCubeMap(_alsoCreateCubeMap)
+            , enableOpenCL(_enableOpenCL)
             , retries(_retries)
             , maxInputImageSize { _maxInputImageSize }
             , maximumCropRatio { _maximumCropRatio }
@@ -207,6 +209,11 @@ public:
          */
         bool alsoCreateCubeMap;
 
+        /**
+         * @brief enableOpenCL
+         * Enable OpenCL support, if the hardware supports it.
+         */
+        bool enableOpenCL;
 
         /**
          * @brief retries
@@ -228,7 +235,7 @@ public:
 
         /**
          * @brief maximumCropRatio
-         *  Maximum distortion ratio of the inner crop area to the outer crop area.
+         * Maximum distortion ratio of the inner crop area to the outer crop area.
          * Closer to zero means to permit more cropping (and distortion of the
          * panorama). Closer to one means to limit the amount of cropped area.
          *

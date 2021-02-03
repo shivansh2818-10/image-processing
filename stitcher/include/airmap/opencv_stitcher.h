@@ -4,6 +4,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/optional.hpp>
 
+#include <opencv2/core/ocl.hpp>
 #include <opencv2/core/utility.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgcodecs.hpp>
@@ -43,15 +44,7 @@ public:
                    const Panorama::Parameters &parameters,
                    const std::string &outputPath,
                    std::shared_ptr<Logger> logger,
-                   bool debug = false, path debugPath = path("debug"))
-        : _debug(debug)
-        , _debugPath(debugPath)
-        , _logger(logger)
-        , _panorama(panorama)
-        , _parameters(parameters)
-        , _outputPath(outputPath)
-    {
-    }
+                   bool debug = false, path debugPath = path("debug"));
 
     Report stitch() override;
     void cancel() override;
