@@ -49,6 +49,8 @@ public:
     Report stitch() override;
     void cancel() override;
     void postprocess(cv::Mat&& result);
+    void setFallbackMode() override;
+    void setUseOpenCL(bool enabled = true);
 
 protected:
     bool _debug;

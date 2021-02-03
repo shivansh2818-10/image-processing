@@ -7,6 +7,15 @@ namespace stitcher {
 
 //
 //
+// Stitcher
+//
+//
+void Stitcher::setFallbackMode()
+{
+}
+
+//
+//
 // OpenCVStitcher
 //
 //
@@ -22,7 +31,18 @@ OpenCVStitcher::OpenCVStitcher(const Panorama &panorama,
     , _parameters(parameters)
     , _outputPath(outputPath)
 {
-    cv::ocl::setUseOpenCL(_parameters.enableOpenCL);
+    setUseOpenCL(_parameters.enableOpenCL);
+}
+
+void OpenCVStitcher::setFallbackMode()
+{
+    _parameters.enableOpenCL = false;
+    setUseOpenCL(_parameters.enableOpenCL);
+}
+
+void OpenCVStitcher::setUseOpenCL(bool enabled)
+{
+    cv::ocl::setUseOpenCL(enabled);
     std::stringstream message;
     message << "OpenCL is" << (cv::ocl::useOpenCL() ? " " : " not ")
             << "activated.";

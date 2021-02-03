@@ -50,11 +50,24 @@ public:
     virtual ~Stitcher() = default;
 
     /**
+     * @brief cancel
+     * Cancel an active stitch.
+     */
+    virtual void cancel() = 0;
+
+    /**
+     * @brief setFallbackMode
+     * Set fallback mode.  Fallback mode might be enabled after a failure,
+     * so that the stitcher can fallback to safer settings
+     * (e.g. disabling OpenCL).
+     */
+    virtual void setFallbackMode();
+
+    /**
      * @brief stitch is the Stitcher's main entry - subclasses should
      * fill with the actual stitching.
      */
     virtual Report stitch() = 0;
-    virtual void cancel() = 0;
 };
 
 /**
@@ -73,6 +86,11 @@ public:
     {
     }
 
+    void cancel() override {
+        _retries = 0;
+        _underlying->cancel();
+    }
+
     Report stitch() override {
         for (size_t i = 0; i < _retries; i++) {
             try {
@@ -81,16 +99,13 @@ public:
                 if (_retries == 0) {
                     throw;
                 }
+                _underlying->setFallbackMode();
                 std::stringstream ss;
                 ss << "Stitching failed with " << e.what() << ", retrying, retries left " << _retries - i;
                 _logger->log(logging::Logger::Severity::error, ss.str().c_str(), "stitcher");
             }
         }
         return _underlying->stitch();
-    }
-    void cancel() override {
-        _retries = 0;
-        _underlying->cancel();
     }
 
 private:
