@@ -61,7 +61,7 @@ public:
      * so that the stitcher can fallback to safer settings
      * (e.g. disabling OpenCL).
      */
-    virtual void setFallbackMode();
+    virtual void setFallbackMode() {}
 
     /**
      * @brief stitch is the Stitcher's main entry - subclasses should

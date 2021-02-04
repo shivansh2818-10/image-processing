@@ -7,15 +7,6 @@ namespace stitcher {
 
 //
 //
-// Stitcher
-//
-//
-void Stitcher::setFallbackMode()
-{
-}
-
-//
-//
 // OpenCVStitcher
 //
 //
