@@ -10,36 +10,6 @@
 #include <time.h>
 
 namespace airmap {
-namespace filesystem {
-
-path::path(const std::string &p)
-    : _path(p)
-{
-    if (_path.back() == separator()) {
-        _path = _path.substr(0, _path.size() - 1);
-    }
-}
-
-path path::parent_path() const
-{
-    size_t last_slash = _path.find_last_of(separator());
-    if (last_slash == std::string::npos) {
-        return path("");
-    }
-    return _path.substr(0, last_slash);
-}
-
-std::string path::stem() const
-{
-    std::string result = _path;
-    size_t last_slash = _path.find_last_of(separator());
-    if (last_slash != std::string::npos) {
-        result = result.substr(last_slash);
-    }
-    return result.substr(0, result.find_last_of("."));
-}
-} // namespace filesystem
-
 namespace stitcher {
 
 float geocoordinate_t::distance_metres(const geocoordinate_t &to) const
@@ -144,8 +114,8 @@ bool Panorama::add(const GeoImage &image)
     if (size() > 0
         && (image.geoCoordinate.distance_metres(_geoBBox.centre()) > MaxSpatialDistanceMts
             || image.createdTimestampSec - _maxCreationTimestamp > MaxTimeFromPreviousSec
-            || filesystem::path(image.path).parent_path()
-                    != filesystem::path(front().path).parent_path())) {
+            || path(image.path).parent_path()
+                    != path(front().path).parent_path())) {
         return false;
     }
     if (!endsWith(image.path, PanoramaFileExtension)) {
@@ -177,7 +147,7 @@ std::string Panorama::debugDescribe() const
 {
     std::stringstream ss;
     ss << "Panorama with " << size() << " images in "
-       << filesystem::path(inputPaths().front()).parent_path().string()
+       << path(inputPaths().front()).parent_path().string()
        << ", taken (exif): ["
        << std::put_time(gmtime(&_minCreationTimestamp), "%Y-%m-%d %H:%M:%S") << ".."
        << std::put_time(gmtime(&_maxCreationTimestamp), "%Y-%m-%d %H:%M:%S") << "]";
