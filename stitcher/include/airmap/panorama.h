@@ -15,8 +15,9 @@ namespace filesystem {
  * @brief The path class is a basic ersatz for a std::filesystem (C++17) or boost::filesystem
  * that doesn't require linking anything
  * 
- * boost::filesystem::path is used in other parts of the project, but this header
- * is used in 
+ * boost::filesystem::path is used in other parts of the project, but keeping it
+ * it out of the headers so that consuming projects don't have to link to boost
+ * if only using headers.
  */
 class path {
     public:
