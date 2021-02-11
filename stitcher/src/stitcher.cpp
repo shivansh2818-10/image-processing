@@ -51,8 +51,8 @@ Stitcher::Report OpenCVStitcher::stitch()
                                          report.inputScaled);
 
     cv::Mat result;
-    cv::Ptr<cv::Stitcher> stitcher = cv::Stitcher::create(cv::Stitcher::PANORAMA);
-    cv::Stitcher::Status status;
+    cv::Ptr<cv::HighStitcher> stitcher = cv::HighStitcher::create(cv::HighStitcher::PANORAMA);
+    cv::HighStitcher::Status status;
     try {
         status = stitcher->stitch(source_images.images, result);
     } catch (const std::exception &e) {
@@ -63,15 +63,15 @@ Stitcher::Report OpenCVStitcher::stitch()
         // nothing we shouldn't want to retry on.
         throw RetriableError(e.what());
     }
-    if (status != cv::Stitcher::OK) {
+    if (status != cv::HighStitcher::OK) {
         std::stringstream ss;
         ss << "Can't stitch; ";
-        if (status == cv::Stitcher::ERR_NEED_MORE_IMGS) {
+        if (status == cv::HighStitcher::ERR_NEED_MORE_IMGS) {
             ss << "need more images";
             throw std::invalid_argument(ss.str());
-        } else if (status == cv::Stitcher::ERR_HOMOGRAPHY_EST_FAIL) {
+        } else if (status == cv::HighStitcher::ERR_HOMOGRAPHY_EST_FAIL) {
             ss << "ERR_HOMOGRAPHY_EST_FAIL";
-        } else if (status == cv::Stitcher::ERR_CAMERA_PARAMS_ADJUST_FAIL) {
+        } else if (status == cv::HighStitcher::ERR_CAMERA_PARAMS_ADJUST_FAIL) {
             ss << "ERR_CAMERA_PARAMS_ADJUST_FAIL";
         }
         throw RetriableError(ss.str());
@@ -192,6 +192,8 @@ void LowLevelOpenCVStitcher::compose(
     }
 
     auto blender = prepareBlender(warp_results);
+    warp_results.masks.clear();
+    warp_results.images_warped.clear();
 
     cv::Mat image_warped, image_warped_s;
     cv::Mat dilated_mask, seam_mask, mask, mask_warped;
@@ -222,13 +224,20 @@ void LowLevelOpenCVStitcher::compose(
         mask.release();
 
         cv::dilate(warp_results.masks_warped[i], dilated_mask, cv::Mat());
+        warp_results.masks_warped[i].release();
         cv::resize(dilated_mask, seam_mask, mask_warped.size(), 0, 0,
                    cv::INTER_LINEAR_EXACT);
+        dilated_mask.release();
         mask_warped = seam_mask & mask_warped;
+        seam_mask.release();
 
         // blend the current image
         blender->feed(image_warped_s, mask_warped, warp_results.corners[i]);
+        image_warped_s.release();
+        mask_warped.release();
     }
+
+    source_images.clear();
 
     cv::Mat result_mask;
     blender->blend(result, result_mask);
@@ -827,7 +836,16 @@ Stitcher::Report LowLevelOpenCVStitcher::stitch(cv::Mat &result)
     // Reload images at compose scale.
     source_images.reload();
     source_images.filter(keep_indices);
+
+    std::stringstream message;
+    message << "original image size: " << source_images.images[0].size().width << " x " << source_images.images[0].size().height;
+    _logger->log(Logger::Severity::info, message, "stitcher");
     source_images.scale(report.inputScaled * compose_scale);
+
+    message.str("");
+    message << "compose_scale: " << compose_scale << "\n";
+    message << "compose image size: " << source_images.images[0].size().width << " x " << source_images.images[0].size().height;
+    _logger->log(Logger::Severity::info, message, "stitcher");
 
     // Compose the final panorama.
     compose(source_images, cameras, exposure_compensator, warp_results,

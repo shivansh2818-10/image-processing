@@ -27,6 +27,7 @@
 #include "airmap/gimbal.h"
 #include "airmap/images.h"
 #include "airmap/logging.h"
+#include "airmap/opencv_high_stitcher.h"
 #include "airmap/stitcher.h"
 
 using boost::filesystem::path;
@@ -273,7 +274,7 @@ public:
                 blend_strength = 5;
                 blender_type = cv::detail::Blender::MULTI_BAND;
                 bundle_adjuster_type = BundleAdjusterType::Ray;
-                compose_megapix = -1;
+                compose_megapix = 5;
                 estimator_type = EstimatorType::Homography;
                 exposure_compensator_type = ExposureCompensatorType::GainBlocks;
                 exposure_compensation_nr_feeds = 1;

@@ -26,6 +26,7 @@ add_library(
     src/distortion.cpp
     src/images.cpp
     src/stitcher.cpp
+    src/opencv_high_stitcher.cpp
     src/panorama.cpp
     3rdParty/TinyEXIF/TinyEXIF.cpp
     3rdParty/TinyEXIF/tinyxml2.cpp
