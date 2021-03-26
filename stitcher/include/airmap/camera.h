@@ -105,6 +105,8 @@ struct Camera
         if (_configurationCb) {
             return _configurationCb(configuration, stitchType);
         }
+
+        return configuration;
     }
 
     /**

@@ -268,6 +268,8 @@ struct Configuration
             wave_correct_type = WaveCorrectType::Horizontal;
             work_megapix = 0.6;
             break;
+        case StitchType::No:
+            break;
         }
         stitch_type = stitchType;
     }
