@@ -77,12 +77,12 @@ struct Camera
                    return configuration;
                })
         : calibration_intrinsics(_calibration_intrinsics)
-        , _configurationCb(configurationCb)
         , distortion_model(std::move(_distortion_model))
         , focal_length_meters(_focal_length_meters)
         , principal_point(_principal_point)
         , sensor_dimensions_meters(_sensor_dimensions_meters)
         , sensor_dimensions_pixels(_sensor_dimensions_pixels)
+        , _configurationCb(configurationCb)
     {
     }
 
