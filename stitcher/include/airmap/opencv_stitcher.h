@@ -27,12 +27,13 @@
 #include "airmap/images.h"
 #include "airmap/logging.h"
 #include "airmap/monitor/estimator.h"
+#include "airmap/opencv/matchers.h"
 #include "airmap/opencv/seam_finders.h"
 #include "airmap/stitcher.h"
 #include "airmap/stitcher_configuration.h"
 
-using MonitoredGraphCutSeamFinder =
-        airmap::stitcher::opencv::detail::MonitoredGraphCutSeamFinder;
+using airmap::stitcher::opencv::detail::MonitoredGraphCutSeamFinder;
+using airmap::stitcher::opencv::detail::ThreeSixtyPanoramaOrientationMatcher;
 
 namespace airmap {
 namespace stitcher {
@@ -195,11 +196,12 @@ private:
      * @param conf_threshold
      * @param flags
      */
-    void debugMatches(SourceImages &source_images,
-                      std::vector<cv::detail::ImageFeatures> &features,
-                      std::vector<cv::detail::MatchesInfo> &matches,
-                      float conf_threshold,
-                      cv::DrawMatchesFlags flags = cv::DrawMatchesFlags::DEFAULT);
+    void debugMatches(
+        const std::vector<cv::Mat> &source_images,
+        const std::vector<cv::detail::ImageFeatures> &features,
+        std::vector<cv::detail::MatchesInfo> &matches,
+        float conf_threshold, const path debug_path,
+        const cv::DrawMatchesFlags flags = cv::DrawMatchesFlags::DEFAULT) const;
 
     /**
      * @brief debugWarpResults
@@ -223,10 +225,11 @@ private:
     /**
      * @brief findFeatures
      * Find features in the source images.  Scale images to work_scale first.
-     * @param source_images
+     * @param source_images A vector of cv::Mat images.
      * @return
      */
-    std::vector<cv::detail::ImageFeatures> findFeatures(SourceImages &source_images);
+    std::vector<cv::detail::ImageFeatures>
+    findFeatures(const std::vector<cv::Mat> &source_images) const;
 
     /**
      * @brief findMedianFocalLength
@@ -277,7 +280,7 @@ private:
      * Create and return a feature finder according to configuration.
      * @return
      */
-    cv::Ptr<cv::Feature2D> getFeaturesFinder();
+    cv::Ptr<cv::Feature2D> getFeaturesFinder() const;
 
     /**
      * @brief getFeaturesMatcher
@@ -349,6 +352,25 @@ private:
      */
     cv::Ptr<cv::detail::ExposureCompensator>
     prepareExposureCompensation(WarpResults &warp_results);
+
+    /**
+     * @brief rotateImage
+     * Rotate an image by the given angle in 2D.
+     * @param image The cv::Mat panorama image to rotate.
+     * @param angle Angle in degrees.
+     */
+    void rotateImage(cv::Mat &image, double angle);
+
+    /**
+     * @brief shouldRotateThreeSixty
+     * Attempts to determine if the spherical projector/warper rotated
+     * the panorama so that it's upside down.
+     * @param original_images A vector of cv::Mat images.
+     * @param warped_images A vector of images.
+     */
+    bool
+    shouldRotateThreeSixty(const std::vector<cv::Mat> &original_images,
+                           cv::InputArray &warped_images);
 
     /**
      * @brief undistortImages
