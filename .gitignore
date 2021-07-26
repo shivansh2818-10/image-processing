@@ -40,6 +40,12 @@
 *.files
 *.includes
 
+# User files
+*.user
+*.usr
+*.tmp
+*.swp
+
 mason_packages
 node_modules
 dist
@@ -47,3 +53,5 @@ dist
 **/*.vscode
 **/bats
 **/build*
+**/coverage/
+
